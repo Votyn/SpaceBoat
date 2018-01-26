@@ -29,25 +29,29 @@ module.exports.run = async (client, message, args) => {
     }
 
     if (toMute.roles.has(role.id)) {
-        console.log(`${toMute.user.username} already muted!`) 
-        (message.channel.send(`${toMute.user.username} already muted!`)).delete(10000)
-    };
+        console.log(`${toMute.user.username} already muted!`);
+        message.channel.send(`${toMute.user.username} already muted!`).then(m => m.delete(5000));
+        return;
+    }
 
     if (args[1]) {
-        client.mutes[toMute.id] = {
+        mutes[toMute.id] = {
             guild: message.guild.id,
             time: Date.now() + parseInt(args[1]) * 1000
         }
         console.log(`args[1]`);
+        fs.writeFile("./mutes.json", JSON.stringify(mutes, null, 4), err => {
+            if (err) throw err;
+            message.channel.send(`${toMute.user.username} has been muted for ${args[1]} seconds.`);
+            console.log(`${toMute.user.username} has been muted for ${args[1]} seconds.`);
+        });
     }
 
-    await toMute.addRole(role);
-
-    fs.writeFile("./mutes.json", JSON.stringify(client.mutes, null, 4), err => {
-        if (err) throw err;
+    if (!args[1]) {
+        await toMute.addRole(role);
         message.channel.send(`${toMute.user.username} has been muted.`);
         console.log(`${toMute.user.username} has been muted.`);
-    });
+    }
 
     return;
 }

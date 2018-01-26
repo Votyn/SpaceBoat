@@ -4,7 +4,7 @@ const fs = require("fs");
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
-client.mutes = require("./mutes.json");
+mutes = require("./mutes.json");
 
 fs.readdir("./cmds/", (err, files) => {
     if (err) console.error(err);
@@ -30,9 +30,9 @@ client.on('ready', () => {
     console.log(client.commands)
 
     client.setInterval(() => {
-        for (let i in client.mutes) {
-            let time = client.mutes[i].time;
-            let guildId = client.mutes[i].guild;
+        for (let i in mutes) {
+            let time = mutes[i].time;
+            let guildId = mutes[i].guild;
             let guild = client.guilds.get(guildId);
             let member = guild.members.get(i);
             let mutedRole = guild.roles.find(r => r.name === "Muted");
@@ -41,8 +41,8 @@ client.on('ready', () => {
             if (Date.now() > time) {
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
-                client.mutes[i] = null;
-                delete client.mutes[i];
+                mutes[i] = null;
+                delete mutes[i];
             }
         }
     })
