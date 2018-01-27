@@ -30,7 +30,7 @@ module.exports.run = async (client, message, args) => {
 
     if (toMute.roles.has(role.id)) {
         console.log(`${toMute.user.username} already muted!`);
-        message.channel.send(`${toMute.user.username} already muted!`).then(m => m.delete(5000));
+        (await message.channel.send(`${toMute.user.username} already muted!`)).then(m => m.delete(5000));
         return;
     }
 

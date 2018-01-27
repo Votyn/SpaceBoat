@@ -1,3 +1,5 @@
+const fs = module.require("fs")
+
 module.exports.run = async (client, message, args) => {
     console.log("unmuting...");
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to unmute without sufficient permissions!`); //check permission
@@ -9,6 +11,7 @@ module.exports.run = async (client, message, args) => {
     toUnmute.removeRole(role);
     message.channel.send(`${toUnmute.user.username} has been unmuted.`);
     console.log(`${toUnmute.user.username} has been unmuted.`);
+    //delete mutes[toUnmute.user.id]
 }
 
 module.exports.help = {
