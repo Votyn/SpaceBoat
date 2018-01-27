@@ -38,10 +38,10 @@ client.on('ready', () => {
             let guild = client.guilds.get(guildId);
             let member = guild.members.get(i);
             let mutedRole = guild.roles.find(r => r.name === "Muted");
-            if (!mutedRole) continue; console.log('no Muted role found!');
+            if (!mutedRole) { console.log('no Muted role found!'); continue };
             
             if (Date.now() > time) {
-                let logChannel = message.guild.channels.get(config.logChannelID)
+                let logChannel = guild.channels.get(config.logChannelID)
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
                 logChannel.send(`${member.user.username} has been unmuted.`);
