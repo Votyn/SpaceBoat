@@ -38,11 +38,12 @@ client.on('ready', () => {
             let guild = client.guilds.get(guildId);
             let member = guild.members.get(i);
             let mutedRole = guild.roles.find(r => r.name === "Muted");
-            if (!mutedRole) continue;
+            if (!mutedRole) continue console.log('no Muted role found!');
             
             if (Date.now() > time) {
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
+                logChannel.send(`${member.user.username} has been unmuted.`);
                 mutes[i] = null;
                 delete mutes[i];
                 fs.writeFileSync("./mutes.json", JSON.stringify(mutes, null, 4), err => {
