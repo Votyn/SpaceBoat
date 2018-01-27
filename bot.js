@@ -43,7 +43,7 @@ client.on('ready', () => {
             if (Date.now() > time) {
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
-                logChannel.send(`${member.user.username} has been unmuted.`);
+                config.logChannel.send(`${member.user.username} has been unmuted.`);
                 mutes[i] = null;
                 delete mutes[i];
                 fs.writeFileSync("./mutes.json", JSON.stringify(mutes, null, 4), err => {
