@@ -36,6 +36,8 @@ module.exports.run = async (client, message, args) => {
         return;
     }
 
+    await toMute.addRole(role);
+
     if (args[1]) {
         mutes[toMute.id] = {
             guild: message.guild.id,
@@ -47,10 +49,10 @@ module.exports.run = async (client, message, args) => {
             logChannel.send(`${toMute.user.username} has been muted for ${args[1]} minutes.`);
             console.log(`${toMute.user.username} has been muted for ${args[1]} minutes.`);
         });
+        (await message.channel.send(`${toMute.user.username} has been muted for ${args[1]} minutes.`)).delete(20000);
     }
 
     if (!args[1]) {
-        await toMute.addRole(role);
         (await message.channel.send(`${toMute.user.username} has been muted.`)).delete(20000);
         logChannel.send(`${toMute.user.username} has been muted.`);
         console.log(`${toMute.user.username} has been muted.`);
