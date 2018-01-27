@@ -38,7 +38,7 @@ client.on('ready', () => {
             let guild = client.guilds.get(guildId);
             let member = guild.members.get(i);
             let mutedRole = guild.roles.find(r => r.name === "Muted");
-            if (!mutedRole) continue console.log('no Muted role found!');
+            if (!mutedRole) continue; console.log('no Muted role found!');
             
             if (Date.now() > time) {
                 member.removeRole(mutedRole);
