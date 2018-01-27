@@ -64,7 +64,6 @@ client.on('message', message => {
 
     let cmd = client.commands.get(command.slice(config.prefix.length));
     if (cmd) cmd.run(client, message, args);
-    console.log(new Date())
 });
 
 client.on('guildMemberAdd', member => {
@@ -74,10 +73,23 @@ client.on('guildMemberAdd', member => {
             .setThumbnail(member.user.displayAvatarURL)
             .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
             .setFooter(`ID: ${member.id}`)
-            .setAuthor(`New member joined!`, member.user.displayAvatarURL)
+            .setAuthor(`Member joined!`, member.user.displayAvatarURL)
             .setTimestamp()
     })
 });
+
+client.on('guildMemberRemove', member => {
+    let logChannel = member.guild.channels.get(config.logChannelID)
+    logChannel.send({
+        embed: new Discord.RichEmbed()
+            .setThumbnail(member.user.displayAvatarURL)
+            .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
+            .setFooter(`ID: ${member.id}`)
+            .setAuthor(`Member left.`, member.user.displayAvatarURL)
+            .setTimestamp()
+    })
+});
+
 
 client.login(config.token);
 

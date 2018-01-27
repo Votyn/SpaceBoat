@@ -1,11 +1,13 @@
-const fs = module.require("fs")
+const fs = module.require("fs");
+const config = require("../config.json");
 
 module.exports.run = async (client, message, args) => {
     console.log("muting...")
+    const logChannel = message.guild.channels.get(config.logChannelID)
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to mute without sufficient permissions!`); //check permission
-    let toMute = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned user
+    let toMute = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
     if (!toMute) return console.log(`${message.author.username} failed to specify a user to mute!`); //check if user mentioned
-    if (message.member.highestRole <= toMute.highestRole) return console.log(`${message.author.username} attempted to mute a member with a higher role!`); //check role
+    if (message.member.highestRole.comparePositionTo(toMute.highestRole) < 0) return console.log(`${message.author.username} attempted to mute a member with a higher role!`); //check role
     
     let role = message.guild.roles.find(r => r.name === "Muted"); //search for role
     if (!role) { //if no role, create role
@@ -30,26 +32,27 @@ module.exports.run = async (client, message, args) => {
 
     if (toMute.roles.has(role.id)) {
         console.log(`${toMute.user.username} already muted!`);
-        (await message.channel.send(`${toMute.user.username} already muted!`)).then(m => m.delete(5000));
+        (await message.channel.send(`${toMute.user.username} already muted!`)).delete(5000);
         return;
     }
 
     if (args[1]) {
         mutes[toMute.id] = {
             guild: message.guild.id,
-            time: Date.now() + parseInt(args[1]) * 1000
+            time: Date.now() + parseInt(args[1]) * 60000
         }
         console.log(`args[1]`);
         fs.writeFile("./mutes.json", JSON.stringify(mutes, null, 4), err => {
             if (err) throw err;
-            message.channel.send(`${toMute.user.username} has been muted for ${args[1]} seconds.`);
-            console.log(`${toMute.user.username} has been muted for ${args[1]} seconds.`);
+            logChannel.send(`${toMute.user.username} has been muted for ${args[1]} minutes.`);
+            console.log(`${toMute.user.username} has been muted for ${args[1]} minutes.`);
         });
     }
 
     if (!args[1]) {
         await toMute.addRole(role);
-        message.channel.send(`${toMute.user.username} has been muted.`);
+        (await message.channel.send(`${toMute.user.username} has been muted.`)).delete(20000);
+        logChannel.send(`${toMute.user.username} has been muted.`);
         console.log(`${toMute.user.username} has been muted.`);
     }
 
