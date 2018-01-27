@@ -41,9 +41,10 @@ client.on('ready', () => {
             if (!mutedRole) continue; console.log('no Muted role found!');
             
             if (Date.now() > time) {
+                let logChannel = message.guild.channels.get(config.logChannelID)
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
-                config.logChannel.send(`${member.user.username} has been unmuted.`);
+                logChannel.send(`${member.user.username} has been unmuted.`);
                 mutes[i] = null;
                 delete mutes[i];
                 fs.writeFileSync("./mutes.json", JSON.stringify(mutes, null, 4), err => {
