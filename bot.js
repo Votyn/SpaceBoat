@@ -1,6 +1,7 @@
 const config = require("./config.json");
 const Discord = require("discord.js");
 const fs = require("fs");
+guilds = require("./guilds.json");
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -98,6 +99,17 @@ client.on('guildMemberRemove', member => {
     })
 });
 
+client.on('guildCreate', guild => {
+    let guilds = {}
+    guilds[guild.id] = {
+        logChannelID: "",
+        botChannelID: "",
+        adminbotChannelID: ""
+    }
+    fs.writeFile("./guilds.json", JSON.stringify(guilds, null, 4), err => {
+        if (err) console.error('Error saving guilds.json file:', err);
+    });
+});
 
 client.login(config.token);
 
