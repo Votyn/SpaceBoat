@@ -9,7 +9,7 @@ module.exports.run = async (client, message, args) => {
     let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
     if (!target) return console.log(`${message.author.username} failed to specify a user to mute!`); //check if user mentioned
     if (target.hasPermission("MANAGE_MESSAGES")) {
-        console.log(`Error: Target user is a moderator.`);
+        console.log(`Error: ${target.user.username} is a moderator.`);
         (await message.channel.send(`${target.user.username} is a moderator!`)).delete(5000);
         return;
     } //Moderators cannot mute other moderators.
@@ -52,7 +52,6 @@ module.exports.run = async (client, message, args) => {
             guild: message.guild.id,
             time: Date.now() + parseInt(args[1]) * 60000
         }
-        console.log(`args[1]`);
         fs.writeFile("./mutes.json", JSON.stringify(mutes, null, 4), err => {
             if (err) throw err;
         });
