@@ -1,5 +1,6 @@
 const fs = module.require("fs")
 const config = require("../config.json");
+const Discord = require("discord.js")
 
 module.exports.run = async (client, message, args) => {
     const logChannel = message.guild.channels.get(config.logChannelID)
