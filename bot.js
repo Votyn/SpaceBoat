@@ -44,7 +44,13 @@ client.on('ready', () => {
                 let logChannel = guild.channels.get(config.logChannelID)
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
-                logChannel.send(`${member.user.username} has been unmuted.`);
+                logChannel.send({
+                    embed: new Discord.RichEmbed()
+                        .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Automatic.**`)
+                        .setFooter(`ID: ${member.id}`)
+                        .setAuthor(`Member unmuted.`, member.user.displayAvatarURL)
+                        .setTimestamp()
+                });
                 mutes[i] = null;
                 delete mutes[i];
                 fs.writeFileSync("./mutes.json", JSON.stringify(mutes, null, 4), err => {
