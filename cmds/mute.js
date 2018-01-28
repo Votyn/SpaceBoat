@@ -7,7 +7,11 @@ module.exports.run = async (client, message, args) => {
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to mute without sufficient permissions!`); //check permission
     let toMute = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
     if (!toMute) return console.log(`${message.author.username} failed to specify a user to mute!`); //check if user mentioned
-    if (message.member.highestRole.comparePositionTo(toMute.highestRole) < 0) return console.log(`${message.author.username} attempted to mute a member with a higher role!`); //check role
+    if (toMute.hasPermission("MANAGE_MESSAGES")) {
+        console.log(`Error: Target user is a moderator.`);
+        (await message.channel.send(`${toMute.user.username} is a moderator!`)).delete(5000);
+        return;
+    } //Moderators cannot mute other moderators.
     
     let role = message.guild.roles.find(r => r.name === "Muted"); //search for role
     if (!role) { //if no role, create role
