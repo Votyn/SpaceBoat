@@ -5,14 +5,14 @@ module.exports.run = async (client, message, args) => {
     console.log("muting...")
     const logChannel = message.guild.channels.get(config.logChannelID)
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to mute without sufficient permissions!`); //check permission
-    let toMute = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
-    if (!toMute) return console.log(`${message.author.username} failed to specify a user to mute!`); //check if user mentioned
-    if (toMute.hasPermission("MANAGE_MESSAGES")) {
+    let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
+    if (!target) return console.log(`${message.author.username} failed to specify a user to mute!`); //check if user mentioned
+    if (target.hasPermission("MANAGE_MESSAGES")) {
         console.log(`Error: Target user is a moderator.`);
-        (await message.channel.send(`${toMute.user.username} is a moderator!`)).delete(5000);
+        (await message.channel.send(`${target.user.username} is a moderator!`)).delete(5000);
         return;
     } //Moderators cannot mute other moderators.
-    
+
     let role = message.guild.roles.find(r => r.name === "Muted"); //search for role
     if (!role) { //if no role, create role
         try {
@@ -34,32 +34,32 @@ module.exports.run = async (client, message, args) => {
         }
     }
 
-    if (toMute.roles.has(role.id)) {
-        console.log(`${toMute.user.username} already muted!`);
-        (await message.channel.send(`${toMute.user.username} already muted!`)).delete(5000);
+    if (target.roles.has(role.id)) {
+        console.log(`${target.user.username} already muted!`);
+        (await message.channel.send(`${target.user.username} already muted!`)).delete(5000);
         return;
     }
 
-    await toMute.addRole(role);
+    await target.addRole(role);
 
     if (args[1]) {
-        mutes[toMute.id] = {
+        mutes[target.id] = {
             guild: message.guild.id,
             time: Date.now() + parseInt(args[1]) * 60000
         }
         console.log(`args[1]`);
         fs.writeFile("./mutes.json", JSON.stringify(mutes, null, 4), err => {
             if (err) throw err;
-            logChannel.send(`${toMute.user.username} has been muted for ${args[1]} minutes.`);
-            console.log(`${toMute.user.username} has been muted for ${args[1]} minutes.`);
+            logChannel.send(`${target.user.username} has been muted for ${args[1]} minutes.`);
+            console.log(`${target.user.username} has been muted for ${args[1]} minutes.`);
         });
-        (await message.channel.send(`${toMute.user.username} has been muted for ${args[1]} minutes.`)).delete(20000);
+        (await message.channel.send(`${target.user.username} has been muted for ${args[1]} minutes.`)).delete(20000);
     }
 
     if (!args[1]) {
-        (await message.channel.send(`${toMute.user.username} has been muted.`)).delete(20000);
-        logChannel.send(`${toMute.user.username} has been muted.`);
-        console.log(`${toMute.user.username} has been muted.`);
+        (await message.channel.send(`${target.user.username} has been muted.`)).delete(20000);
+        logChannel.send(`${target.user.username} has been muted.`);
+        console.log(`${target.user.username} has been muted.`);
     }
 
     return;
