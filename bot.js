@@ -27,8 +27,21 @@ fs.readdir("./cmds/", (err, files) => {
 
 
 client.on('ready', () => {
-    console.log(`${client.user.username} switched on.`)
-    console.log(client.commands)
+    console.log(`${client.user.username} switched on.`);
+    console.log(client.commands);
+    for (let i in guilds) {
+        let guild = client.guilds.get(i)
+        if (!guilds[i].logChannelID) {
+            console.log(`ERROR: Server [${guild.name}] does not have a logging channel!, ${i[0]}`)
+        }
+        if (!guilds[i].botChannelID) {
+            console.log(`ERROR: Server [${guild.name}] does not have a specified bot channel!`)
+        }
+        if (!guilds[i].adminbotChannelID) {
+            console.log(`ERROR: Server [${guild.name}] does not have an admin bot channel!`)
+        } 
+        console.log(`Server [${guild.name}] loaded with ${guild.channels.size} channels and ${guild.memberCount} members.`);
+    }
 
     client.setInterval(() => {
         //console.log(mutes);
@@ -42,7 +55,7 @@ client.on('ready', () => {
             if (!mutedRole) { console.log('no Muted role found!'); continue };
             
             if (Date.now() > time) {
-                let logChannel = guild.channels.get(config.logChannelID)
+                let logChannel = guild.channels.get(guilds[guildId].logChannelID)
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
                 logChannel.send({
@@ -100,7 +113,6 @@ client.on('guildMemberRemove', member => {
 });
 
 client.on('guildCreate', guild => {
-    let guilds = {}
     guilds[guild.id] = {
         logChannelID: "",
         botChannelID: "",
@@ -109,6 +121,7 @@ client.on('guildCreate', guild => {
     fs.writeFile("./guilds.json", JSON.stringify(guilds, null, 4), err => {
         if (err) console.error('Error saving guilds.json file:', err);
     });
+    console.log(`Joined new server! Please set up Channel IDs.`)
 });
 
 client.login(config.token);
