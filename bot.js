@@ -1,11 +1,11 @@
-const config = require("./config.json");
-const Discord = require("discord.js");
-const fs = require("fs");
-guilds = require("./guilds.json");
+const Discord = module.require("discord.js");
+const fs = module.require("fs");
+const config = require("./configs/config.json");
+const mutes = require("./configs/mutes.json");
+const guilds = require("./configs/guilds.json");
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
-mutes = require("./mutes.json");
 
 fs.readdir("./cmds/", (err, files) => {
     if (err) console.error(err);
@@ -29,6 +29,7 @@ fs.readdir("./cmds/", (err, files) => {
 client.on('ready', () => {
     console.log(`${client.user.username} switched on.`);
     console.log(client.commands);
+
     for (let i in guilds) {
         let guild = client.guilds.get(i)
         if (!guilds[i].logChannelID) {
@@ -39,21 +40,38 @@ client.on('ready', () => {
         }
         if (!guilds[i].adminbotChannelID) {
             console.log(`ERROR: Server [${guild.name}] does not have an admin bot channel!`)
-        } 
+        }
         console.log(`Server [${guild.name}] loaded with ${guild.channels.size} channels and ${guild.memberCount} members.`);
     }
 
     client.setInterval(() => {
         //console.log(mutes);
         for (let i in mutes) {
-           //console.log(i);
+            //console.log(i);
             let time = mutes[i].time;
             let guildId = mutes[i].guild;
             let guild = client.guilds.get(guildId);
             let member = guild.members.get(i);
             let mutedRole = guild.roles.find(r => r.name === "Muted");
+
+            if (!member) {
+                console.log('ERROR: User is not in the server anymore!'); 
+                delete mutes[i];
+                fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    if (err) console.error('Error saving mutes.json file: ', err);
+                });
+                continue;
+            }
             if (!mutedRole) { console.log('no Muted role found!'); continue };
-            
+            if (!member.roles.has(mutedRole.id)) { 
+                console.log('User has been manually unmuted!'); 
+                delete mutes[i];
+                fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    if (err) console.error('Error saving mutes.json file: ', err);
+                });
+                continue;
+            }
+
             if (Date.now() > time) {
                 let logChannel = guild.channels.get(guilds[guildId].logChannelID)
                 member.removeRole(mutedRole);
@@ -67,7 +85,7 @@ client.on('ready', () => {
                 });
                 mutes[i] = null;
                 delete mutes[i];
-                fs.writeFileSync("./mutes.json", JSON.stringify(mutes, null, 4), err => {
+                fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
                     if (err) console.error('Error saving mutes.json file:', err);
                 });
             }
@@ -89,7 +107,7 @@ client.on('message', message => {
 });
 
 client.on('guildMemberAdd', member => {
-    let logChannel = member.guild.channels.get(config.logChannelID)
+    let logChannel = member.guild.channels.get(guilds[member.guild.id].logChannelID)
     logChannel.send({
         embed: new Discord.RichEmbed()
             .setThumbnail(member.user.displayAvatarURL)
@@ -97,11 +115,12 @@ client.on('guildMemberAdd', member => {
             .setFooter(`ID: ${member.id}`)
             .setAuthor(`Member joined!`, member.user.displayAvatarURL)
             .setTimestamp()
-    })
+    });
+    console.log(`Member joined! ${member.user.username}#${member.user.discriminator}`);
 });
 
 client.on('guildMemberRemove', member => {
-    let logChannel = member.guild.channels.get(config.logChannelID)
+    let logChannel = member.guild.channels.get(guilds[member.guild.id].logChannelID)
     logChannel.send({
         embed: new Discord.RichEmbed()
             .setThumbnail(member.user.displayAvatarURL)
@@ -110,6 +129,7 @@ client.on('guildMemberRemove', member => {
             .setAuthor(`Member left.`, member.user.displayAvatarURL)
             .setTimestamp()
     })
+    console.log(`Member left! ${member.user.username}#${member.user.discriminator}`);
 });
 
 client.on('guildCreate', guild => {

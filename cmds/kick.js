@@ -1,9 +1,10 @@
-const config = require("../config.json");
 const Discord = require("discord.js");
+const config = require("../configs/config.json");
+const guilds = require("../configs/guilds.json")
 
 module.exports.run = async (client, message, args) => {
-    console.log("kicking...")
-    const logChannel = message.guild.channels.get(config.logChannelID)
+    console.log("kicking...");
+    const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to kick without sufficient permissions!`); //check permission
     let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
     if (!target) {
@@ -17,9 +18,9 @@ module.exports.run = async (client, message, args) => {
         return;
     } //Moderators cannot mute other moderators.
     let reason = args.splice(1).join(' ');
-    console.log(`${target.user.username} kicked: ${reason}`);
+    console.log(`${target.user.username} kicked. ${reason}`);
     if (!reason) {
-        (await message.channel.send(`${target.username} kicked!`)).delete(10000);
+        (await message.channel.send(`${target.user.username} kicked!`)).delete(10000);
         target.kick(`Moderator: ${message.author.username}`);
         logChannel.send({
             embed: new Discord.RichEmbed()
@@ -47,6 +48,6 @@ module.exports.run = async (client, message, args) => {
 
 module.exports.help = {
     name: "kick",
-    description: "Kicks the target member, with an optional reason."
-
+    usage: "kick <username> <reason>",
+    description: "Kicks the specified user, with an optional reason."
 }

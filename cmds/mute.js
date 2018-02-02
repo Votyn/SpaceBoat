@@ -1,10 +1,12 @@
 const fs = module.require("fs");
 const Discord = module.require('discord.js');
-const config = require("../config.json");
+const config = require("../configs/config.json");
+const guilds = require("../configs/guilds.json");
+const mutes = require("../configs/mutes.json");
 
 module.exports.run = async (client, message, args) => {
-    console.log("muting...")
-    const logChannel = message.guild.channels.get(config.logChannelID)
+    console.log("muting...");
+    const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to mute without sufficient permissions!`); //check permission
     let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
     if (!target) return console.log(`${message.author.username} failed to specify a user to mute!`); //check if user mentioned
@@ -48,24 +50,44 @@ module.exports.run = async (client, message, args) => {
     await target.addRole(role);
 
     if (args[1]) {
+        // if (args[2]) {
+        //     if (args[2] == ('seconds' || 's' || 'sec' || 'secs' || 'second')) {
+        //         clock = 'second';
+        //         multiplier = 1;
+        //     }
+        //     if (args[2] == ('hour' || 'hours' || 'h')) {
+        //         clock = 'hour';
+        //         multiplier = 3600;
+        //     }
+        //     if (args[2] == ('day' || 'days' || 'd')) {
+        //         clock = 'day';
+        //         multiplier = 86400;
+        //     }
+        // }
+        // if (!(args[2] || clock)) {
+        //     clock = 'minute';
+        //     multiplier = 60;
+        // }
+        clock = 'minute';
+        multiplier = 60;
         mutes[target.id] = {
             guild: message.guild.id,
-            time: Date.now() + parseInt(args[1]) * 60000
+            time: Date.now() + parseInt(args[1]) * multiplier * 1000
         }
-        fs.writeFile("./mutes.json", JSON.stringify(mutes, null, 4), err => {
+        fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
             if (err) throw err;
         });
         let s = 's'
-        if (args[1] = 1) { s = '' }
+        if (args[1] == 1) { s = '' }
         logChannel.send({
             embed: new Discord.RichEmbed()
-                .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}\n**Time:** ${args[1]} minute${s}.`)
+                .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}\n**Time:** ${args[1]} ${clock}${s}.`)
                 .setFooter(`ID: ${target.id}`)
                 .setAuthor(`Member muted!`, target.user.displayAvatarURL)
                 .setTimestamp()
         });
-        console.log(`${target.user.username} has been muted for ${args[1]} minute${s}.`);
-        (await message.channel.send(`${target.user.username} has been muted for ${args[1]} minute${s}.`)).delete(20000);
+        console.log(`${target.user.username} has been muted for ${args[1]} ${clock}${s}.`);
+        (await message.channel.send(`${target.user.username} has been muted for ${args[1]} ${clock}${s}.`)).delete(20000);
     }
 
     if (!args[1]) {
@@ -84,5 +106,7 @@ module.exports.run = async (client, message, args) => {
 }
 
 module.exports.help = {
-    name: "mute"
+    name: "mute",
+    usage: "mute <username> <time (in minutes)",
+    description: "Mutes the specified user, for an optionally specified amount of time, in minutes."
 }
