@@ -144,7 +144,7 @@ client.on('guildMemberAdd', member => {
         logChannel.send({
             embed: new Discord.RichEmbed()
                 .setThumbnail(member.user.displayAvatarURL)
-                .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
+                .setDescription(`${member} - ${member.user.tag}`)
                 .setFooter(`ID: ${member.id}`)
                 .setAuthor(`Member joined!`, member.user.displayAvatarURL)
                 .setTimestamp()
@@ -153,7 +153,7 @@ client.on('guildMemberAdd', member => {
     catch (error) {
         console.log('No logchannel defined for this guild!');
     }
-    console.log(`Member joined! ${member.user.username}#${member.user.discriminator}`);
+    console.log(`Member joined! ${member.user.tag}`);
 });
 
 client.on('guildMemberRemove', member => {
@@ -162,7 +162,7 @@ client.on('guildMemberRemove', member => {
         logChannel.send({
             embed: new Discord.RichEmbed()
                 .setThumbnail(member.user.displayAvatarURL)
-                .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
+                .setDescription(`${member} - ${member.user.tag}`)
                 .setFooter(`ID: ${member.id}`)
                 .setAuthor(`Member left.`, member.user.displayAvatarURL)
                 .setTimestamp()
@@ -171,7 +171,7 @@ client.on('guildMemberRemove', member => {
     catch (error) {
         console.log('No logchannel defined for this guild!');
     }
-    console.log(`Member left! ${member.user.username}#${member.user.discriminator}`);
+    console.log(`Member left! ${member.user.tag}`);
 });
 
 client.on('guildCreate', guild => {
