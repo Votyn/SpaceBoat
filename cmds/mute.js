@@ -6,29 +6,37 @@ const mutes = require("../configs/mutes.json");
 
 module.exports.run = async (client, message, args) => {
     console.log("muting...");
+    //import logChannel.
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
-    if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to mute without sufficient permissions!`); //check permission
-    let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
-    if (!target) return console.log(`${message.author.username} failed to specify a user to mute!`); //check if user mentioned
+    //check permissions.
+    if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to mute without sufficient permissions!`);
+    //import target member from the message.
+    let target = message.mentions.members.first() || message.guild.members.get(args[0]);
+    //breaks if there is no target member.
+    if (!target) return console.log(`${message.author.username} failed to specify a user to mute!`);
+    //checks if target is a moderator.
     if (target.hasPermission("MANAGE_MESSAGES")) {
         console.log(`Error: ${target.user.username} is a moderator.`);
         (await message.channel.send(`${target.user.username} is a moderator!`)).delete(5000);
         return;
-    } //Moderators cannot mute other moderators.
-
-    let role = message.guild.roles.find(r => r.name === "Muted"); //search for role
+    }
+    //searches for the role
+    let role = message.guild.roles.find(r => r.name === "Muted");
+    //makes sure that the bot's highest role is above the muted role.
     if (message.guild.me.highestRole.comparePositionTo(role) < 1) {
         console.log(`ERROR: Cannot assign Muted role!`);
         logChannel.send(`ERROR: Cannot assign Muted role!`);
+        return;
     }
-    if (!role) { //if no role, create role
+    //if no muted role exists, create it.
+    if (!role) {
         try {
-            role = await message.guild.createRole({ //create role
+            role = await message.guild.createRole({
                 name: "muted",
                 color: "#8a",
                 permissions: []
             });
-
+            
             message.guild.channels.forEach(async (channel, id) => {
                 await channel.overwritePermissions(role, {
                     SEND_MESSAGES: false,
@@ -41,6 +49,7 @@ module.exports.run = async (client, message, args) => {
         }
     }
 
+    //checks if member already muted.
     if (target.roles.has(role.id)) {
         console.log(`${target.user.username} already muted!`);
         (await message.channel.send(`${target.user.username} already muted!`)).delete(5000);
@@ -50,26 +59,32 @@ module.exports.run = async (client, message, args) => {
     await target.addRole(role);
 
     if (args[1]) {
-        // if (args[2]) {
-        //     if (args[2] == ('seconds' || 's' || 'sec' || 'secs' || 'second')) {
-        //         clock = 'second';
-        //         multiplier = 1;
-        //     }
-        //     if (args[2] == ('hour' || 'hours' || 'h')) {
-        //         clock = 'hour';
-        //         multiplier = 3600;
-        //     }
-        //     if (args[2] == ('day' || 'days' || 'd')) {
-        //         clock = 'day';
-        //         multiplier = 86400;
-        //     }
-        // }
-        // if (!(args[2] || clock)) {
-        //     clock = 'minute';
-        //     multiplier = 60;
-        // }
-        clock = 'minute';
-        multiplier = 60;
+        if (args[2]) {
+            if (args[2] == 'seconds' ||
+                args[2] == 's' ||
+                args[2] == 'sec' ||
+                args[2] == 'secs' ||
+                args[2] == 'second') {
+                clock = 'second';
+                multiplier = 1;
+            }
+            if (args[2] == 'hour' ||
+                args[2] == 'hours' ||
+                args[2] == 'h') {
+                clock = 'hour';
+                multiplier = 3600;
+            }
+            if (args[2] == 'day' ||
+                args[2] == 'days' ||
+                args[2] == 'd') {
+                clock = 'day';
+                multiplier = 86400;
+            }
+        }
+        if (!(args[2] || clock)) {
+            clock = 'minute';
+            multiplier = 60;
+        }
         mutes[target.id] = {
             guild: message.guild.id,
             time: Date.now() + parseInt(args[1]) * multiplier * 1000
