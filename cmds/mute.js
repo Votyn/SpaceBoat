@@ -25,7 +25,13 @@ module.exports.run = async (client, message, args) => {
     //makes sure that the bot's highest role is above the muted role.
     if (message.guild.me.highestRole.comparePositionTo(role) < 1) {
         console.log(`ERROR: Cannot assign Muted role!`);
-        logChannel.send(`ERROR: Cannot assign Muted role!`);
+        try {
+            logChannel.send(`ERROR: Cannot assign Muted role!`);
+        }
+        catch (error) {
+            console.log('No logchannel defined for this guild!');
+            (await message.channel.send('Please configure a logging channel!')).delete(10000);
+        }
         return;
     }
     //if no muted role exists, create it.
@@ -81,7 +87,7 @@ module.exports.run = async (client, message, args) => {
                 multiplier = 86400;
             }
         }
-        if (!(args[2] || clock)) {
+        if (!(args[2] || !clock)) {
             clock = 'minute';
             multiplier = 60;
         }
@@ -94,26 +100,38 @@ module.exports.run = async (client, message, args) => {
         });
         let s = 's'
         if (args[1] == 1) { s = '' }
-        logChannel.send({
-            embed: new Discord.RichEmbed()
-                .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}\n**Time:** ${args[1]} ${clock}${s}.`)
-                .setFooter(`ID: ${target.id}`)
-                .setAuthor(`Member muted!`, target.user.displayAvatarURL)
-                .setTimestamp()
-        });
+        try {
+            logChannel.send({
+                embed: new Discord.RichEmbed()
+                    .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}\n**Time:** ${args[1]} ${clock}${s}.`)
+                    .setFooter(`ID: ${target.id}`)
+                    .setAuthor(`Member muted!`, target.user.displayAvatarURL)
+                    .setTimestamp()
+            })
+        }
+        catch (error) {
+            console.log('No logchannel defined for this guild!');
+            (await message.channel.send('Please configure a logging channel!')).delete(10000);
+        }
         console.log(`${target.user.username} has been muted for ${args[1]} ${clock}${s}.`);
         (await message.channel.send(`${target.user.username} has been muted for ${args[1]} ${clock}${s}.`)).delete(20000);
     }
 
     if (!args[1]) {
         (await message.channel.send(`${target.user.username} has been muted.`)).delete(20000);
-        logChannel.send({
-            embed: new Discord.RichEmbed()
-                .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}`)
-                .setFooter(`ID: ${target.id}`)
-                .setAuthor(`Member muted!`, target.user.displayAvatarURL)
-                .setTimestamp()
-        });
+        try {
+            logChannel.send({
+                embed: new Discord.RichEmbed()
+                    .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}`)
+                    .setFooter(`ID: ${target.id}`)
+                    .setAuthor(`Member muted!`, target.user.displayAvatarURL)
+                    .setTimestamp()
+            })
+        }
+        catch (error) {
+            console.log('No logchannel defined for this guild!');
+            (await message.channel.send('Please configure a logging channel!')).delete(10000);
+        }
         console.log(`${target.user.username} has been muted.`);
     }
 
