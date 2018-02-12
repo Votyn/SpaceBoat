@@ -2,7 +2,18 @@ const Discord = module.require("discord.js");
 const fs = module.require("fs");
 const config = require("./configs/config.json");
 const mutes = require("./configs/mutes.json");
-const guilds = require("./configs/guilds.json");
+
+try {
+        var guilds = require("./configs/guilds.json");
+    }
+catch (error) {
+    console.log('ERROR: No guilds.json file found!');
+    console.log("Creating new guilds.json file.");
+    fs.writeFileSync("./configs/guilds.json", JSON.stringify({}, null, 4), err => {
+        if (err) console.error('Error saving guilds.json file:', err);
+    });
+    var guilds = require("./configs/guilds.json");
+}
 
 const client = new Discord.Client();
 client.commands = new Discord.Collection();
@@ -28,7 +39,22 @@ fs.readdir("./cmds/", (err, files) => {
 
 client.on('ready', () => {
     console.log(`${client.user.username} switched on.`);
-    console.log(client.commands);
+
+    let clientGuildsIDs = Array.from( client.guilds.keys() );
+    for (let i in clientGuildsIDs) {
+        if (!guilds.hasOwnProperty(clientGuildsIDs[i])) {
+            console.log(`Setting up ${clientGuildsIDs[i]}`);
+            guilds[clientGuildsIDs[i]] = {
+                logChannelID: "",
+                botChannelID: "",
+                adminbotChannelID: ""
+            }
+            fs.writeFile("./configs/guilds.json", JSON.stringify(guilds, null, 4), err => {
+                if (err) console.error('Error saving guilds.json file:', err);
+            });
+            console.log("Guild added to guilds.json. Please configure channelIDs.");
+        }
+    }
 
     for (let i in guilds) {
         let guild = client.guilds.get(i)
@@ -76,13 +102,19 @@ client.on('ready', () => {
                 let logChannel = guild.channels.get(guilds[guildId].logChannelID)
                 member.removeRole(mutedRole);
                 console.log(`${member.user.username} has been unmuted.`);
-                logChannel.send({
-                    embed: new Discord.RichEmbed()
-                        .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Automatic.**`)
-                        .setFooter(`ID: ${member.id}`)
-                        .setAuthor(`Member unmuted.`, member.user.displayAvatarURL)
-                        .setTimestamp()
-                });
+                try {
+                    logChannel.send({
+                        embed: new Discord.RichEmbed()
+                            .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Automatic.**`)
+                            .setFooter(`ID: ${member.id}`)
+                            .setAuthor(`Member unmuted.`, member.user.displayAvatarURL)
+                            .setTimestamp()
+                    })
+                }
+                catch (error) {
+                    console.log('No logchannel defined for this guild!');
+                }
+                
                 mutes[i] = null;
                 delete mutes[i];
                 fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
@@ -108,27 +140,37 @@ client.on('message', message => {
 
 client.on('guildMemberAdd', member => {
     let logChannel = member.guild.channels.get(guilds[member.guild.id].logChannelID)
-    logChannel.send({
-        embed: new Discord.RichEmbed()
-            .setThumbnail(member.user.displayAvatarURL)
-            .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
-            .setFooter(`ID: ${member.id}`)
-            .setAuthor(`Member joined!`, member.user.displayAvatarURL)
-            .setTimestamp()
-    });
+    try {
+        logChannel.send({
+            embed: new Discord.RichEmbed()
+                .setThumbnail(member.user.displayAvatarURL)
+                .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
+                .setFooter(`ID: ${member.id}`)
+                .setAuthor(`Member joined!`, member.user.displayAvatarURL)
+                .setTimestamp()
+        });
+    }
+    catch (error) {
+        console.log('No logchannel defined for this guild!');
+    }
     console.log(`Member joined! ${member.user.username}#${member.user.discriminator}`);
 });
 
 client.on('guildMemberRemove', member => {
     let logChannel = member.guild.channels.get(guilds[member.guild.id].logChannelID)
-    logChannel.send({
-        embed: new Discord.RichEmbed()
-            .setThumbnail(member.user.displayAvatarURL)
-            .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
-            .setFooter(`ID: ${member.id}`)
-            .setAuthor(`Member left.`, member.user.displayAvatarURL)
-            .setTimestamp()
-    })
+    try {
+        logChannel.send({
+            embed: new Discord.RichEmbed()
+                .setThumbnail(member.user.displayAvatarURL)
+                .setDescription(`${member} - ${member.user.username}#${member.user.discriminator}`)
+                .setFooter(`ID: ${member.id}`)
+                .setAuthor(`Member left.`, member.user.displayAvatarURL)
+                .setTimestamp()
+        })
+    }
+    catch (error) {
+        console.log('No logchannel defined for this guild!');
+    }
     console.log(`Member left! ${member.user.username}#${member.user.discriminator}`);
 });
 
