@@ -5,27 +5,21 @@ const guilds = require("../configs/guilds.json");
 
 
 module.exports.run = async (client, message, args) => {
-    if (message.channel.id === guilds[message.guild.id].botChannelID) {
+    if (message.channel.id === guilds[message.guild.id].botChannelID ||
+        message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         let term = args.join(' ');
-        webdict('urbandictionary', term)
-            .then(resp => {
+        await webdict('urbandictionary', term)
+            .then (resp => {
                 message.channel.send({
                     embed: new Discord.RichEmbed()
                         .setTitle(`:book: ${term}`)
                         .setDescription(resp.definition[0])
                 });
-            });
-    }
-    if (message.channel.id === guilds[message.guild.id].adminbotChannelID) {
-        let term = args.join(' ');
-        webdict('urbandictionary', term)
-            .then(resp => {
-                message.channel.send({
-                    embed: new Discord.RichEmbed()
-                        .setTitle(`:book: ${term}`)
-                        .setDescription(resp.definition[0])
-                });
-            });
+            })
+            .catch (error => {
+                console.log('Error serving urban dictionary definition');
+                message.channel.send(':x:').then(m => m.delete(10000));
+            })
     }
 }
 
