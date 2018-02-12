@@ -22,26 +22,38 @@ module.exports.run = async (client, message, args) => {
     if (!reason) {
         (await message.channel.send(`${target.user.username} kicked!`)).delete(10000);
         target.kick(`Moderator: ${message.author.username}`);
-        logChannel.send({
-            embed: new Discord.RichEmbed()
-                .setDescription(`**Member kicked:** ${target}\n**Moderator:** ${message.author}`)
-                .setFooter(`ID: ${target.id}`)
-                .setAuthor(`Member kicked!`, target.user.displayAvatarURL)
-                .setTimestamp()
-        });
+        try {
+            logChannel.send({
+                embed: new Discord.RichEmbed()
+                    .setDescription(`**Member kicked:** ${target}\n**Moderator:** ${message.author}`)
+                    .setFooter(`ID: ${target.id}`)
+                    .setAuthor(`Member kicked!`, target.user.displayAvatarURL)
+                    .setTimestamp()
+            });
+        }
+        catch (error) {
+            console.log('No logchannel defined for this guild!');
+            (await message.channel.send('Please configure a logging channel!')).delete(10000);
+        }
     }
     if (reason) {
         DMchannel = await target.createDM()
         DMchannel.send(`**You have been kicked for the following reason:** ${reason}`);
         (await message.channel.send(`${target.user.username} kicked!`)).delete(10000);
         target.kick(`Moderator: ${message.author.username}. Reason: ${reason}`);
-        logChannel.send({
-            embed: new Discord.RichEmbed()
-                .setDescription(`**Member kicked:** ${target}\n**Moderator:** ${message.author}\n**Reason:** ${reason}`)
-                .setFooter(`ID: ${target.id}`)
-                .setAuthor(`Member kicked!`, target.user.displayAvatarURL)
-                .setTimestamp()
-        });
+        try {
+            logChannel.send({
+                embed: new Discord.RichEmbed()
+                    .setDescription(`**Member kicked:** ${target}\n**Moderator:** ${message.author}\n**Reason:** ${reason}`)
+                    .setFooter(`ID: ${target.id}`)
+                    .setAuthor(`Member kicked!`, target.user.displayAvatarURL)
+                    .setTimestamp()
+            });
+        }
+        catch (error) {
+            console.log('No logchannel defined for this guild!');
+            (await message.channel.send('Please configure a logging channel!')).delete(10000);
+        }
     }
     return;
 }

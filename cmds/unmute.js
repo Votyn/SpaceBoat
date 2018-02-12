@@ -14,13 +14,19 @@ module.exports.run = async (client, message, args) => {
 
     target.removeRole(role);
     (await message.channel.send(`${target.user.username} has been unmuted.`)).delete(20000);
-    logChannel.send({
-        embed: new Discord.RichEmbed()
-            .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}`)
-            .setFooter(`ID: ${target.id}`)
-            .setAuthor(`Member unmuted`, target.user.displayAvatarURL)
-            .setTimestamp()
-    });
+    try {    
+        logChannel.send({
+            embed: new Discord.RichEmbed()
+                .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}`)
+                .setFooter(`ID: ${target.id}`)
+                .setAuthor(`Member unmuted`, target.user.displayAvatarURL)
+                .setTimestamp()
+        })
+    }
+    catch (error) {
+        console.log('No logchannel defined for this guild!');
+        (await message.channel.send('Please configure a logging channel!')).delete(10000);
+    }
     console.log(`${target.user.username} has been unmuted.`);
 }
 
