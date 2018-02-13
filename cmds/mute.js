@@ -62,8 +62,6 @@ module.exports.run = async (client, message, args) => {
         return;
     }
 
-    await target.addRole(role);
-
     if (args[1]) {
         if (args[2]) {
             if (args[2] == 'seconds' ||
@@ -87,23 +85,32 @@ module.exports.run = async (client, message, args) => {
                 multiplier = 86400;
             }
         }
-        if (!(args[2] || !clock)) {
+
+        let muteLength = parseInt(args[1])
+
+        if (isNaN(muteLength)) {
+            console.error(`Supplied muteLength (${args[1]}) cannot be converted to a valid number!`);
+            (await message.channel.send(`Supplied mute length (${args[1]}) cannot be converted to a valid number!`)).delete(10000);
+            return;
+        }
+
+        if (!args[2] || !clock) {
             clock = 'minute';
             multiplier = 60;
         }
         mutes[target.id] = {
             guild: message.guild.id,
-            time: Date.now() + parseInt(args[1]) * multiplier * 1000
+            time: Date.now() + muteLength * multiplier * 1000
         }
         fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
             if (err) throw err;
         });
         let s = 's'
-        if (args[1] == 1) { s = '' }
+        if (muteLength == 1) { s = '' }
         try {
             logChannel.send({
                 embed: new Discord.RichEmbed()
-                    .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}\n**Time:** ${args[1]} ${clock}${s}.`)
+                    .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}\n**Time:** ${muteLength} ${clock}${s}.`)
                     .setFooter(`ID: ${target.id}`)
                     .setAuthor(`Member muted!`, target.user.displayAvatarURL)
                     .setTimestamp()
@@ -113,8 +120,8 @@ module.exports.run = async (client, message, args) => {
             console.log('No logchannel defined for this guild!');
             (await message.channel.send('Please configure a logging channel!')).delete(10000);
         }
-        console.log(`${target.user.username} has been muted for ${args[1]} ${clock}${s}.`);
-        (await message.channel.send(`${target.user.username} has been muted for ${args[1]} ${clock}${s}.`)).delete(20000);
+        console.log(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
+        (await message.channel.send(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`)).delete(20000);
     }
 
     if (!args[1]) {
@@ -134,6 +141,8 @@ module.exports.run = async (client, message, args) => {
         }
         console.log(`${target.user.username} has been muted.`);
     }
+
+    await target.addRole(role).catch(err => {console.error(err)});
 
     return;
 }
