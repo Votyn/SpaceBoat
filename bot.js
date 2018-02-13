@@ -59,7 +59,7 @@ client.on('ready', () => {
     for (let i in guilds) {
         let guild = client.guilds.get(i)
         if (!guilds[i].logChannelID) {
-            console.log(`ERROR: Server [${guild.name}] does not have a logging channel!, ${i[0]}`)
+            console.log(`ERROR: Server [${guild.name}] does not have a logging channel!`)
         }
         if (!guilds[i].botChannelID) {
             console.log(`ERROR: Server [${guild.name}] does not have a specified bot channel!`)
