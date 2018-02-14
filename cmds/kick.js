@@ -16,7 +16,7 @@ module.exports.run = async (client, message, args) => {
         console.log(`Error: Target user is a moderator.`);
         (await message.channel.send(`${target.user.username} is a moderator!`)).delete(5000);
         return;
-    } //Moderators cannot mute other moderators.
+    } //Moderators cannot ban other moderators.
     let reason = args.splice(1).join(' ');
     console.log(`${target.user.username} kicked. ${reason}`);
     if (!reason) {
