@@ -2,6 +2,7 @@ const Discord = module.require("discord.js");
 const fs = module.require("fs");
 const config = require("./configs/config.json");
 const mutes = require("./configs/mutes.json");
+const bans = require("./configs/bans.json");
 
 try {
         var guilds = require("./configs/guilds.json");
@@ -119,6 +120,46 @@ client.on('ready', () => {
                 delete mutes[i];
                 fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
                     if (err) console.error('Error saving mutes.json file:', err);
+                });
+            }
+        }
+    });
+    client.setInterval(() => {
+        for (let i in bans) {
+            let time = bans[i].time;
+            let guildId = bans[i].guild;
+            let guild = client.guilds.get(guildId);
+            let member = guild.members.get(i);
+
+            // if (!member.roles.has(mutedRole.id)) { 
+            //     console.log('User has been manually unmuted!'); 
+            //     delete bans[i];
+            //     fs.writeFileSync("./configs/bans.json", JSON.stringify(ban, null, 4), err => {
+            //         if (err) console.error('Error saving bans.json file: ', err);
+            //     });
+            //     continue;
+            // }
+
+            if (Date.now() > time) {
+                let logChannel = guild.channels.get(guilds[guildId].logChannelID)
+                console.log(`${member.user.username} has been unbanned.`);
+                try {
+                    logChannel.send({
+                        embed: new Discord.RichEmbed()
+                            .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Automatic.**`)
+                            .setFooter(`ID: ${member.id}`)
+                            .setAuthor(`Member unbanned.`, member.user.displayAvatarURL)
+                            .setTimestamp()
+                    })
+                }
+                catch (error) {
+                    console.log('No logchannel defined for this guild!');
+                }
+                
+                bans[i] = null;
+                delete bans[i];
+                fs.writeFileSync("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
+                    if (err) console.error('Error saving bans.json file:', err);
                 });
             }
         }
