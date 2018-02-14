@@ -37,7 +37,7 @@ module.exports.run = async (client, message, args) => {
         //notify console.
         console.log(`${target.user.username} has been banned!`);
         //ban the target user.
-        message.reply('oh er meh no')
+        target.ban(`Moderator: ${message.author.username}`)
     }
 
     // There are arguments after the user identification.
@@ -69,14 +69,15 @@ module.exports.run = async (client, message, args) => {
                 target.send(`**You have been banned for __${banPeriod} ${clock}${s}__ with the following reason:** ${reason}`)
                     .catch(console.error);
                 var reasonLog = '\n**Reason:** ' + reason
-                //ban the target user    
+                //ban the target user
+                target.ban(`Moderator: ${message.author.username}; Reason: ${reason}`)
             }
             if (!reason) {
                 var reasonLog = ''
                 target.send(`**You have been banned for __${banPeriod} ${clock}${s}__**`)
                     .catch(console.error);
                 //ban the target user
-                await message.reply('ok.. maybe later. not up to it atm..')
+                target.ban(`Moderator: ${message.author.username}`)
             }
             //since it's a timed ban, create a json entry and write to bans.json
             bans[target.id] = {
@@ -103,7 +104,7 @@ module.exports.run = async (client, message, args) => {
             target.send(`**You have been banned for the following reason:** ${reason}`)
                 .catch(console.error);
             //ban.
-            message.reply(`meh maybe later.`)
+            target.ban(`Moderator: ${message.author.username}; Reason: ${reason}`)
             //notify console
             console.log(`${target.user.username} has been banned.`);
             //notifychannel.
