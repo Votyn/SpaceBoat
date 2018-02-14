@@ -63,6 +63,7 @@ module.exports.run = async (client, message, args) => {
     }
 
     if (args[1]) {
+        //if clock supplied, check what clock.
         if (args[2]) {
             if (args[2] == 'seconds' ||
                 args[2] == 's' ||
@@ -70,34 +71,37 @@ module.exports.run = async (client, message, args) => {
                 args[2] == 'secs' ||
                 args[2] == 'second') {
                 clock = 'second';
-                multiplier = 1;
+                multiplier = 1; //filesave multiplies by 1000 by default.
             }
             if (args[2] == 'hour' ||
                 args[2] == 'hours' ||
                 args[2] == 'h') {
                 clock = 'hour';
-                multiplier = 3600;
+                multiplier = 3600; //60 * 60
             }
             if (args[2] == 'day' ||
                 args[2] == 'days' ||
                 args[2] == 'd') {
                 clock = 'day';
-                multiplier = 86400;
+                multiplier = 86400; //60 * 60 * 24
             }
         }
-
+        //make muteLength a number.
         let muteLength = parseInt(args[1])
-
+        //if muteLength is Not a Number, error.
         if (isNaN(muteLength)) {
             console.error(`Supplied muteLength (${args[1]}) cannot be converted to a valid number!`);
             (await message.channel.send(`Supplied mute length (${args[1]}) cannot be converted to a valid number!`)).delete(10000);
             return;
         }
-
+        //if no clock supplied, or invalid clock, default to clock of minute.
         if (!args[2] || !clock) {
             clock = 'minute';
             multiplier = 60;
         }
+        //apply the muted role.
+        await target.addRole(role).catch(err => {console.error(err)});
+        //since it's a timed mute, create a json entry and write to mutes.json
         mutes[target.id] = {
             guild: message.guild.id,
             time: Date.now() + muteLength * multiplier * 1000
@@ -105,6 +109,7 @@ module.exports.run = async (client, message, args) => {
         fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
             if (err) throw err;
         });
+        //notify logchannel.
         let s = 's'
         if (muteLength == 1) { s = '' }
         try {
@@ -120,12 +125,18 @@ module.exports.run = async (client, message, args) => {
             console.log('No logchannel defined for this guild!');
             (await message.channel.send('Please configure a logging channel!')).delete(10000);
         }
+        //notify console
         console.log(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
+        //notifychannel.
         (await message.channel.send(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`)).delete(20000);
     }
 
     if (!args[1]) {
+        //mute
+        await target.addRole(role).catch(err => {console.error(err)});
+        //notify channel
         (await message.channel.send(`${target.user.username} has been muted.`)).delete(20000);
+        //notify logchannel.
         try {
             logChannel.send({
                 embed: new Discord.RichEmbed()
@@ -139,10 +150,9 @@ module.exports.run = async (client, message, args) => {
             console.log('No logchannel defined for this guild!');
             (await message.channel.send('Please configure a logging channel!')).delete(10000);
         }
+        //notify console.
         console.log(`${target.user.username} has been muted.`);
     }
-
-    await target.addRole(role).catch(err => {console.error(err)});
 
     return;
 }
