@@ -1,6 +1,4 @@
 {
-    "token": "<>",
-    "prefix": "/",
-    "logChannelID": "<>"
+    "token": "",
+    "prefix": "="
 }
-//rename to config.json
