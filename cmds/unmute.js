@@ -12,7 +12,7 @@ module.exports.run = async (client, message, args) => {
 
     let role = message.guild.roles.find(r => r.name === "Muted"); //search for role
 
-    target.removeRole(role);
+    target.removeRole(role, `Moderator: ${message.author.username}`);
     (await message.channel.send(`${target.user.username} has been unmuted.`)).delete(20000);
     try {    
         logChannel.send({
