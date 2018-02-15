@@ -153,7 +153,8 @@ client.on('ready', () => {
                     })
                 }
                 catch (error) {
-                    console.log('No logchannel defined for this guild!');
+                    if (!logChannel) console.log('No logchannel defined for this guild!');
+                    else console.log(error);
                 }
                 
                 bans[i] = null;
@@ -192,10 +193,13 @@ client.on('guildMemberAdd', member => {
         });
     }
     catch (error) {
-        console.log('No logchannel defined for this guild!');
+        if (!logChannel) console.log('No logchannel defined for this guild!');
+        else console.log(error);
     }
     console.log(`Member joined! ${member.user.tag}`);
 });
+
+//below is repeat-logged when member kicked/banned!
 
 client.on('guildMemberRemove', member => {
     let logChannel = member.guild.channels.get(guilds[member.guild.id].logChannelID)
@@ -210,7 +214,8 @@ client.on('guildMemberRemove', member => {
         })
     }
     catch (error) {
-        console.log('No logchannel defined for this guild!');
+        if (!logChannel) console.log('No logchannel defined for this guild!');
+        else console.log(error);
     }
     console.log(`Member left! ${member.user.tag}`);
 });
@@ -226,6 +231,45 @@ client.on('guildCreate', guild => {
     });
     console.log(`Joined new server! Please set up Channel IDs.`)
 });
+
+// please fix: the below will activate even if user has been banned by bot. Will result in multiple logs.
+
+// client.on('guildBanAdd', guild, user => {
+//     let logChannel = guild.channels.get(guilds[guild.id].logChannelID)
+//     try {
+//         logChannel.send({
+//             embed: new Discord.RichEmbed()
+//                 .setDescription(`**User:** ${user}\n`)
+//                 .setFooter(`ID: ${target.id}`)
+//                 .setAuthor(`Member Banned!`, target.user.displayAvatarURL)
+//                 .setTimestamp()
+//         })
+//     }
+//     catch (error) {
+//         if (!logChannel) console.log('No logchannel defined for this guild!');
+//         else console.log(error);
+//     }
+// });
+
+//same for below.
+
+// client.on('guildBanRemove', guild, user => {
+//     let logChannel = guild.channels.get(guilds[guild.id].logChannelID)
+//     try {
+//         logChannel.send({
+//             embed: new Discord.RichEmbed()
+//                 .setDescription(`**User:** ${user}\n*User was unbanned manually.*`)
+//                 .setFooter(`ID: ${target.id}`)
+//                 .setAuthor(`Member Unbanned.`, target.user.displayAvatarURL)
+//                 .setTimestamp()
+//         })
+//     }
+//     catch (error) {
+//         if (!logChannel) console.log('No logchannel defined for this guild!');
+//         else console.log(error);
+//     }
+    // remove ban length from json
+// });
 
 client.login(config.token);
 
