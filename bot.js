@@ -266,7 +266,7 @@ client.on('guildCreate', guild => {
         botChannelID: "",
         adminbotChannelID: ""
     }
-    fs.writeFile("./guilds.json", JSON.stringify(guilds, null, 4), err => {
+    fs.writeFile("./configs/guilds.json", JSON.stringify(guilds, null, 4), err => {
         if (err) console.error('Error saving guilds.json file:', err);
     });
     console.log(`Joined new server! Please set up Channel IDs.`)
