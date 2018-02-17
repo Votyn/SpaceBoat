@@ -94,6 +94,19 @@ client.on('ready', () => {
                 fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
                     if (err) console.error('Error saving mutes.json file: ', err);
                 });
+                try {
+                    logChannel.send({
+                        embed: new Discord.RichEmbed()
+                            .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Reason:** Manually unmuted before end of term.`)
+                            .setFooter(`ID: ${member.id}`)
+                            .setAuthor(`Member unmuted.`, member.user.displayAvatarURL)
+                            .setTimestamp()
+                    })
+                }
+                catch (error) {
+                    if (logChannel) console.log('No logchannel defined for this guild!');
+                    else console.log(error);
+                }
                 continue;
             }
 
@@ -111,7 +124,8 @@ client.on('ready', () => {
                     })
                 }
                 catch (error) {
-                    console.log('No logchannel defined for this guild!');
+                    if (logChannel) console.log('No logchannel defined for this guild!');
+                    else console.log(error);
                 }
                 
                 mutes[i] = null;
@@ -122,31 +136,49 @@ client.on('ready', () => {
             }
         }
         for (let i in bans) {
+            // if (bans[i] == null) {
+            //     bans[i].delete()
+            //     fs.writeFile("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
+            //         if (err) console.error('Error saving bans.json file: ', err);
+            //     });
+            // }
             let time = bans[i].time;
             let guildId = bans[i].guild;
             let guild = client.guilds.get(guildId);
             guild.fetchBans()
                 .then(Collection => {
                     let member = Collection.get(i)
-                    if (!member) {
+                    if (!user) {
                         console.log(`The user [${i}] could not be found! Deleting records.`);
-                        bans[i] = null;
                         delete mutes[i];
                         fs.writeFileSync("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
                             if (err) console.error('Error saving bans.json file: ', err);
                         });
                         console.log(`record deleted.`)
+                        try {
+                            logChannel.send({
+                                embed: new Discord.RichEmbed()
+                                    .setDescription(`**Target:** ${user}\n**Moderator:** ${client.user}\n**Reason:** Manually unbanned before end of term.`)
+                                    .setFooter(`ID: ${user.id}`)
+                                    .setAuthor(`Member unbanned.`, user.displayAvatarURL)
+                                    .setTimestamp()
+                            })
+                        }
+                        catch (error) {
+                            if (logChannel) console.log('No logchannel defined for this guild!');
+                            else console.log(error);
+                        }
                         return;
                     }
                     if (Date.now() > time) {
                         let logChannel = guild.channels.get(guilds[guildId].logChannelID)
-                        console.log(`${member.user.username} has been unbanned.`);
+                        console.log(`${user.username} has been unbanned.`);
                         try {
                             logChannel.send({
                                 embed: new Discord.RichEmbed()
-                                    .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Automatic.**`)
-                                    .setFooter(`ID: ${member.id}`)
-                                    .setAuthor(`Member unbanned.`, member.user.displayAvatarURL)
+                                    .setDescription(`**Target:** ${user}\n**Moderator:** ${client.user}\n**Reason:** Automatically unbanned - Temporary ban term ended.`)
+                                    .setFooter(`ID: ${user.id}`)
+                                    .setAuthor(`Member unbanned.`, user.displayAvatarURL)
                                     .setTimestamp()
                             })
                         }
@@ -154,8 +186,6 @@ client.on('ready', () => {
                             if (!logChannel) console.log('No logchannel defined for this guild!');
                             else console.log(error);
                         }
-                        
-                        bans[i] = null;
                         delete bans[i];
                         fs.writeFileSync("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
                             if (err) console.error('Error saving bans.json file:', err);
