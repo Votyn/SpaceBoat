@@ -1,7 +1,7 @@
 module.exports.run = async (client, message, args) => {
     if (message.author.id == 166125035092836352) {
-        await message.channel.send(args.splice(0).join(' '))
-        message.delete()
+        message.channel.send(args.splice(0).join(' '))
+        message.delete(0)
     }
 }
 module.exports.help = {
