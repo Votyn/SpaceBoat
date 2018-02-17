@@ -54,6 +54,13 @@ module.exports.run = async (client, message, args) => {
                 multiplier = 24; //
                 var reason = args.splice(3).join(' ')
             }
+            if (args[2] == 'hour' ||
+                args[2] == 'hours' ||
+                args[2] == 'h') {
+                clock = 'hour';
+                multiplier = 1; //
+                var reason = args.splice(3).join(' ')
+            }
 
             //if no clock supplied, or invalid clock, default to clock of hour.
             if (!args[2] || !clock) {
