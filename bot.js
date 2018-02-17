@@ -59,6 +59,16 @@ client.on('ready', () => {
 
     for (let i in guilds) {
         let guild = client.guilds.get(i)
+        if (!guild) {
+            console.log(`Error: Guild not found! Removing from records...`);
+            guilds[i] = null;
+            delete guilds[i];
+            fs.writeFile("./configs/guilds.json", JSON.stringify(guilds, null, 4), err => {
+                if (err) console.error('Error saving guilds.json file: ', err);
+            });
+            console.log(`Removed successfully!`);
+            continue;
+        }
         if (!guilds[i].logChannelID) {
             console.log(`ERROR: Server [${guild.name}] does not have a logging channel!`)
         }
