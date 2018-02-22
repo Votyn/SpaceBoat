@@ -30,8 +30,7 @@ module.exports.run = async (bot, message, args) => {
     // If there are no arguments after the target user is identified
     if (!args[1]) {
         //notify logchannel.
-        var timeLog = ''
-        var reasonLog = ''
+        bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author)
         //notify channel
         message.channel.send(`${target.user.username} has been banned!`).then(m => m.delete(20000));
         //notify console.
@@ -61,6 +60,13 @@ module.exports.run = async (bot, message, args) => {
                 multiplier = 1; //
                 var reason = args.splice(3).join(' ')
             }
+            if (args[2] == 'week' ||
+                args[2] == 'weeks' ||
+                args[2] == 'w') {
+                clock = 'week';
+                multiplier = 604800; //60 * 60 * 24 * 7
+                var reason = args.splice(3).join(' ')
+            }
 
             //if no clock supplied, or invalid clock, default to clock of hour.
             if (!args[2] || !clock) {
@@ -75,12 +81,11 @@ module.exports.run = async (bot, message, args) => {
             if (reason) {
                 await target.send(`**You have been banned for __${banPeriod} ${clock}${s}__ with the following reason:** ${reason}`)
                             .catch(console.error);
-                var reasonLog = '\n**Reason:** ' + reason
                 //ban the target user
                 target.ban(`Moderator: ${message.author.username}; Reason: ${reason}`)
             }
             if (!reason) {
-                var reasonLog = ''
+                var reason = ''
                 await target.send(`**You have been banned for __${banPeriod} ${clock}${s}__**`)
                             .catch(console.error);
                 //ban the target user
@@ -95,7 +100,8 @@ module.exports.run = async (bot, message, args) => {
                 if (err) throw err;
             });
             //notify logchannel.
-            var timeLog = `\n**Time:** ${banPeriod} ${clock}${s}`
+            let timeString = `\n**Time:** ${banPeriod} ${clock}${s}`
+            bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason, timeString)
             //notify console
             console.log(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`);
             //notifychannel.
@@ -105,8 +111,7 @@ module.exports.run = async (bot, message, args) => {
         else {
             //notify log
             var reason = args.splice(1).join(' ')
-            var reasonLog = `\n**Reason:** ${reason}`
-            var timeLog = ''
+            bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason)
             //notify user
             target.send(`**You have been banned for the following reason:** ${reason}`)
                 .catch(console.error);
@@ -117,20 +122,6 @@ module.exports.run = async (bot, message, args) => {
             //notifychannel.
             (await message.channel.send(`${target.user.username} has been banned.`)).delete(20000);
         }
-    }
-
-    try {
-        logChannel.send({
-            embed: new Discord.RichEmbed()
-                .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}${timeLog}${reasonLog}`)
-                .setFooter(`ID: ${target.id}`)
-                .setAuthor(`Member Banned!`, target.user.displayAvatarURL)
-                .setTimestamp()
-        })
-    }
-    catch (error) {
-        console.log('No logchannel defined for this guild!');
-        (await message.channel.send('Please configure a logging channel!')).delete(10000);
     }
     return;
 }
