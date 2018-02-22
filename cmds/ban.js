@@ -27,7 +27,7 @@ module.exports.run = async (client, message, args) => {
 
     // THE ACTUAL BAN BEGINS HERE
 
-    // There are no arguments after the target user is identified
+    // If there are no arguments after the target user is identified
     if (!args[1]) {
         //notify logchannel.
         var timeLog = ''
@@ -73,16 +73,16 @@ module.exports.run = async (client, message, args) => {
             if (banPeriod == 1) { s = '' }
 
             if (reason) {
-                target.send(`**You have been banned for __${banPeriod} ${clock}${s}__ with the following reason:** ${reason}`)
-                    .catch(console.error);
+                await target.send(`**You have been banned for __${banPeriod} ${clock}${s}__ with the following reason:** ${reason}`)
+                            .catch(console.error);
                 var reasonLog = '\n**Reason:** ' + reason
                 //ban the target user
                 target.ban(`Moderator: ${message.author.username}; Reason: ${reason}`)
             }
             if (!reason) {
                 var reasonLog = ''
-                target.send(`**You have been banned for __${banPeriod} ${clock}${s}__**`)
-                    .catch(console.error);
+                await target.send(`**You have been banned for __${banPeriod} ${clock}${s}__**`)
+                            .catch(console.error);
                 //ban the target user
                 target.ban(`Moderator: ${message.author.username}`)
             }
