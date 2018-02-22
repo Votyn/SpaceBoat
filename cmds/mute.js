@@ -85,16 +85,25 @@ module.exports.run = async (client, message, args) => {
             //if clock supplied, check what clock.
             if (args[2]) {
                 if (args[2] == 'seconds' ||
-                    args[2] == 's' ||
-                    args[2] == 'sec' ||
+                    args[2] == 'second' ||
                     args[2] == 'secs' ||
-                    args[2] == 'second') {
+                    args[2] == 'sec' ||
+                    args[2] == 's') {
                     clock = 'second';
                     multiplier = 1; //filesave multiplies by 1000 by default.
                     var reason = args.splice(3).join(' ')
                 }
-                if (args[2] == 'hour' ||
-                    args[2] == 'hours' ||
+                if (args[2] == 'minutes' ||
+                    args[2] == 'minute' ||
+                    args[2] == 'mins' ||
+                    args[2] == 'min' ||
+                    args[2] == 'm') {
+                    clock = 'minute';
+                    multiplier = 60; //filesave multiplies by 1000 by default.
+                    var reason = args.splice(3).join(' ')
+                }
+                if (args[2] == 'hours' ||
+                    args[2] == 'hour' ||
                     args[2] == 'h') {
                     clock = 'hour';
                     multiplier = 3600; //60 * 60
@@ -119,7 +128,7 @@ module.exports.run = async (client, message, args) => {
             if (muteLength == 1) { s = '' }
             
             if (reason) {
-                target.send(`**You have been muted for __${muteLength} ${clock}${s} the following reason:** ${reason}`)
+                target.send(`**You have been muted for __${muteLength}__ ${clock}${s} the following reason:** ${reason}`)
                     .catch(console.error);
                 var reasonLog = '\n**Reason:** ' + reason
                 //mute the target user
