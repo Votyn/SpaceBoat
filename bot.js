@@ -104,6 +104,7 @@ client.on('ready', () => {
                     fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
                     });
+                    let logChannel = guild.channels.get(guilds[guildId].logChannelID)
                     try {
                         logChannel.send({
                             embed: new Discord.RichEmbed()
@@ -114,7 +115,7 @@ client.on('ready', () => {
                         })
                     }
                     catch (error) {
-                        if (logChannel) console.log('No logchannel defined for this guild!');
+                        if (!logChannel) console.log('No logchannel defined for this guild!');
                         else console.log(error);
                     }
                     continue;
