@@ -4,7 +4,7 @@ const config = require("../configs/config.json");
 const guilds = require("../configs/guilds.json")
 const bans = module.require("../configs/bans.json");
 
-module.exports.run = async (client, message, args) => {
+module.exports.run = async (bot, message, args) => {
     console.log("banning...");
     //load logChannel
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
