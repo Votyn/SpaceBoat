@@ -1,8 +1,8 @@
-module.exports.run = async (client, message, args) => {
+module.exports.run = async (bot, message, args) => {
     console.log(message.author.id)
     if (!(message.author.id == 166125035092836352)) return;
     console.log(`shutting down...`)
-    client.destroy()
+    bot.destroy()
 }
 
 module.exports.help = {

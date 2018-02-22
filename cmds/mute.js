@@ -4,7 +4,7 @@ const config = require("../configs/config.json");
 const guilds = require("../configs/guilds.json");
 const mutes = require("../configs/mutes.json");
 
-module.exports.run = async (client, message, args) => {
+module.exports.run = async (bot, message, args) => {
     console.log("muting...");
     //import logChannel.
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
@@ -17,7 +17,7 @@ module.exports.run = async (client, message, args) => {
     //checks if target is a moderator.
     if (target.hasPermission("MANAGE_MESSAGES")) {
         console.log(`Error: ${target.user.username} is a moderator.`);
-        (await message.channel.send(`${target.user.username} is a moderator!`)).delete(5000);
+        (await message.channel.send(`${target.user.username} is a moderator!`)).delete(10000);
         return;
     }
     //searches for the role
@@ -57,7 +57,7 @@ module.exports.run = async (client, message, args) => {
     //checks if member already muted.
     if (target.roles.has(role.id)) {
         console.log(`${target.user.username} already muted!`);
-        (await message.channel.send(`${target.user.username} already muted!`)).delete(5000);
+        (await message.channel.send(`${target.user.username} already muted!`)).delete(10000);
         return;
     }
 
@@ -66,10 +66,9 @@ module.exports.run = async (client, message, args) => {
     // There are no arguments after the target user is identified
     if (!args[1]) {
         //notify logchannel.
-        var timeLog = ''
-        var reasonLog = ''
+        bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author)
         //notify channel
-        message.channel.send(`${target.user.username} has been muted.`).then(m => m.delete(20000));
+        message.channel.send(`${target.user.username} has been muted.`);
         //notify console.
         console.log(`${target.user.username} has been muted.`);
         //mute the target user.
@@ -83,39 +82,44 @@ module.exports.run = async (client, message, args) => {
         //if so, it's a muteLength!
         if (!isNaN(muteLength)) {
             //if clock supplied, check what clock.
-            if (args[2]) {
-                if (args[2] == 'seconds' ||
-                    args[2] == 'second' ||
-                    args[2] == 'secs' ||
-                    args[2] == 'sec' ||
-                    args[2] == 's') {
-                    clock = 'second';
-                    multiplier = 1; //filesave multiplies by 1000 by default.
-                    var reason = args.splice(3).join(' ')
-                }
-                if (args[2] == 'minutes' ||
-                    args[2] == 'minute' ||
-                    args[2] == 'mins' ||
-                    args[2] == 'min' ||
-                    args[2] == 'm') {
-                    clock = 'minute';
-                    multiplier = 60; //filesave multiplies by 1000 by default.
-                    var reason = args.splice(3).join(' ')
-                }
-                if (args[2] == 'hours' ||
-                    args[2] == 'hour' ||
-                    args[2] == 'h') {
-                    clock = 'hour';
-                    multiplier = 3600; //60 * 60
-                    var reason = args.splice(3).join(' ')
-                }
-                if (args[2] == 'day' ||
-                    args[2] == 'days' ||
-                    args[2] == 'd') {
-                    clock = 'day';
-                    multiplier = 86400; //60 * 60 * 24
-                    var reason = args.splice(3).join(' ')
-                }
+            if (args[2] == 'seconds' ||
+                args[2] == 'second' ||
+                args[2] == 'secs' ||
+                args[2] == 'sec' ||
+                args[2] == 's') {
+                clock = 'second';
+                multiplier = 1; //filesave multiplies by 1000 by default.
+                var reason = args.splice(3).join(' ')
+            }
+            if (args[2] == 'minutes' ||
+                args[2] == 'minute' ||
+                args[2] == 'mins' ||
+                args[2] == 'min' ||
+                args[2] == 'm') {
+                clock = 'minute';
+                multiplier = 60; //filesave multiplies by 1000 by default.
+                var reason = args.splice(3).join(' ')
+            }
+            if (args[2] == 'hours' ||
+                args[2] == 'hour' ||
+                args[2] == 'h') {
+                clock = 'hour';
+                multiplier = 3600; //60 * 60
+                var reason = args.splice(3).join(' ')
+            }
+            if (args[2] == 'days' ||
+                args[2] == 'day' ||
+                args[2] == 'd') {
+                clock = 'day';
+                multiplier = 86400; //60 * 60 * 24
+                var reason = args.splice(3).join(' ')
+            }
+            if (args[2] == 'weeks' ||
+                args[2] == 'week' ||
+                args[2] == 'w') {
+                clock = 'week';
+                multiplier = 604800; //60 * 60 * 24 * 7
+                var reason = args.splice(3).join(' ')
             }
             //if no clock supplied, or invalid clock, default to clock of minute.
             if (!args[2] || !clock) {
@@ -130,12 +134,11 @@ module.exports.run = async (client, message, args) => {
             if (reason) {
                 target.send(`**You have been muted for __${muteLength}__ ${clock}${s} the following reason:** ${reason}`)
                     .catch(console.error);
-                var reasonLog = '\n**Reason:** ' + reason
                 //mute the target user
                 await target.addRole(role, `Moderator: ${message.author.username}; Reason: ${reason}`).catch(err => { console.error(err) });
             }
             if (!reason) {
-                var reasonLog = ''
+                var reason = ''
                 //mute the target user
                 await target.addRole(role, `Moderator: ${message.author.username}`).catch(err => { console.error(err) });
             }
@@ -148,18 +151,18 @@ module.exports.run = async (client, message, args) => {
                 if (err) throw err;
             });
             //notify logchannel.
-            var timeLog = `\n**Time:** ${muteLength} ${clock}${s}`
+            var timeString = `\n**Time:** ${muteLength} ${clock}${s}`
+            bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason, timeString)
             //notify console
             console.log(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
             //notifychannel.
-            (await message.channel.send(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`)).delete(20000);
+            await message.channel.send(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
         }
 
         else {
             //notify log
             var reason = args.splice(1).join(' ')
-            var reasonLog = `\n**Reason:** ${reason}`
-            var timeLog = ''
+            bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason)
             //notify user
             target.send(`**You have been muted for the following reason:** ${reason}`)
                 .catch(console.error);
@@ -168,21 +171,8 @@ module.exports.run = async (client, message, args) => {
             //notify console
             console.log(`${target.user.username} has been muted.`);
             //notifychannel.
-            (await message.channel.send(`${target.user.username} has been muted.`)).delete(20000);
+            await message.channel.send(`${target.user.username} has been muted.`);
         }
-    }
-    try {
-        logChannel.send({
-            embed: new Discord.RichEmbed()
-                .setDescription(`**Target:** ${target}\n**Moderator:** ${message.author}${timeLog}${reasonLog}`)
-                .setFooter(`ID: ${target.id}`)
-                .setAuthor(`Member muted!`, target.user.displayAvatarURL)
-                .setTimestamp()
-        })
-    }
-    catch (error) {
-        console.log('No logchannel defined for this guild!');
-        (await message.channel.send('Please configure a logging channel!')).delete(10000);
     }
     return;
 }

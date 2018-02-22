@@ -4,7 +4,7 @@ const config = require("../configs/config.json");
 const guilds = require("../configs/guilds.json");
 
 
-module.exports.run = async (client, message, args) => {
+module.exports.run = async (bot, message, args) => {
     if (message.channel.id === guilds[message.guild.id].botChannelID ||
         message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         let term = args.join(' ');

@@ -16,8 +16,11 @@ catch (error) {
     var guilds = require("./configs/guilds.json");
 }
 
-const client = new Discord.Client();
-client.commands = new Discord.Collection();
+const bot = new Discord.Client();
+
+bot.utils = global.utils = require('./utils');
+
+bot.commands = new Discord.Collection();
 
 fs.readdir("./cmds/", (err, files) => {
     if (err) console.error(err);
@@ -33,19 +36,19 @@ fs.readdir("./cmds/", (err, files) => {
     jsfiles.forEach((f, i) => {
         let props = require(`./cmds/${f}`)
         console.log(`${i + 1}: ${f} loaded!`)
-        client.commands.set(props.help.name, props);
+        bot.commands.set(props.help.name, props);
     });
 });
 
 
-client.on('ready', () => {
-    console.log(`${client.user.username} switched on.`);
+bot.on('ready', () => {
+    console.log(`${bot.user.username} switched on.`);
 
-    let clientGuildsIDs = Array.from( client.guilds.keys() );
-    for (let i in clientGuildsIDs) {
-        if (!guilds.hasOwnProperty(clientGuildsIDs[i])) {
-            console.log(`Setting up ${clientGuildsIDs[i]}`);
-            guilds[clientGuildsIDs[i]] = {
+    let botGuildsIDs = Array.from( bot.guilds.keys() );
+    for (let i in botGuildsIDs) {
+        if (!guilds.hasOwnProperty(botGuildsIDs[i])) {
+            console.log(`Setting up ${botGuildsIDs[i]}`);
+            guilds[botGuildsIDs[i]] = {
                 logChannelID: "",
                 botChannelID: "",
                 adminbotChannelID: ""
@@ -58,7 +61,7 @@ client.on('ready', () => {
     }
 
     for (let i in guilds) {
-        let guild = client.guilds.get(i)
+        let guild = bot.guilds.get(i)
         if (!guild) {
             console.log(`Error: Guild not found! Removing from records...`);
             guilds[i] = null;
@@ -81,14 +84,14 @@ client.on('ready', () => {
         console.log(`Server [${guild.name}] loaded with ${guild.channels.size} channels and ${guild.memberCount} members.`);
     }
 
-    client.setInterval(() => {
+    bot.setInterval(() => {
             for ( let i in mutes) {
                 let time = mutes[i].time;
-                let guildId = mutes[i].guild;
-                let guild = client.guilds.get(guildId);
+                let guildID = mutes[i].guild;
+                let guild = bot.guilds.get(guildID);
                 let member = guild.members.get(i);
                 let mutedRole = guild.roles.find(r => r.name === "Muted");
-
+                // check if member is still in server
                 if (!member) {
                     console.log('ERROR: User is not in the server anymore!'); 
                     delete mutes[i];
@@ -97,20 +100,20 @@ client.on('ready', () => {
                     });
                     continue;
                 }
-                if (!mutedRole) { console.log('no Muted role found!'); continue };
+                // check if the member has the muted role.
                 if (!member.roles.has(mutedRole.id)) { 
                     console.log('User has been manually unmuted!'); 
                     delete mutes[i];
                     fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
                     });
-                    let logChannel = guild.channels.get(guilds[guildId].logChannelID)
+                    let logChannel = guild.channels.get(guilds[guildID].logChannelID)
                     try {
                         logChannel.send({
                             embed: new Discord.RichEmbed()
-                                .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Reason:** Manually unmuted before end of term.`)
+                                .setDescription(`${member} was unmuted manually before the end of term.`)
                                 .setFooter(`ID: ${member.id}`)
-                                .setAuthor(`Member unmuted.`, member.user.displayAvatarURL)
+                                .setAuthor(`Member was unmuted.`, member.user.displayAvatarURL)
                                 .setTimestamp()
                         })
                     }
@@ -120,25 +123,16 @@ client.on('ready', () => {
                     }
                     continue;
                 }
-
+                // automatic unmute
                 if (Date.now() > time) {
-                    let logChannel = guild.channels.get(guilds[guildId].logChannelID)
+                    // unmute
                     member.removeRole(mutedRole);
+                    // notify console
                     console.log(`${member.user.username} has been unmuted.`);
-                    try {
-                        logChannel.send({
-                            embed: new Discord.RichEmbed()
-                                .setDescription(`**Target:** ${member}\n**Moderator:** ${client.user}\n**Reason:** Automatic.`)
-                                .setFooter(`ID: ${member.id}`)
-                                .setAuthor(`Member unmuted.`, member.user.displayAvatarURL)
-                                .setTimestamp()
-                        })
-                    }
-                    catch (error) {
-                        if (logChannel) console.log('No logchannel defined for this guild!');
-                        else console.log(error);
-                    }
-                    
+                    // notify logchannel
+                    let logChannel = guild.channels.get(guilds[guildID].logChannelID)
+                    bot.utils.logChannel(bot, guildID, `Member unmuted.`, member.user, bot.user, `Automatic.`)
+                    //remove the entry
                     mutes[i] = null;
                     delete mutes[i];
                     fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
@@ -147,11 +141,11 @@ client.on('ready', () => {
                 }
             }
     });
-    client.setInterval(() => {
+    bot.setInterval(() => {
         for (let j in bans) {
             let time = bans[j].time;
-            let guildId = bans[j].guild;
-            let guild = client.guilds.get(guildId);
+            let guildID = bans[j].guild;
+            let guild = bot.guilds.get(guildID);
             guild.fetchBans()
                 .then(Collection => {
                     let user = Collection.get(j)
@@ -165,14 +159,18 @@ client.on('ready', () => {
                                 });
                             }
                             catch(error) { console.log(error) }
-                            let logChannel = guild.channels.get(guilds[guildId].logChannelID)
+                            let logChannel = guild.channels.get(guilds[guildID].logChannelID)
                             console.log(`${user.username} has been unbanned.`);
+                            bot.utils.logChannel(bot, guildID, `Member unbanned.`, user, bot.user, `Automatically unbanned - Temporary ban term ended.`)
+                        }
+                        else {
+                            console.log(`User ${j} not found!`)
                             try {
                                 logChannel.send({
                                     embed: new Discord.RichEmbed()
-                                        .setDescription(`**Target:** ${user} (${user.tag})\n**Moderator:** ${client.user}\n**Reason:** Automatically unbanned - Temporary ban term ended.`)
-                                        .setFooter(`ID: ${user.id}`)
-                                        .setAuthor(`Member unbanned.`, user.displayAvatarURL)
+                                        .setDescription(`${member} was unbanned manually before the end of term.`)
+                                        .setFooter(`ID: ${member.id}`)
+                                        .setAuthor(`Member was unbanned.`, member.user.displayAvatarURL)
                                         .setTimestamp()
                                 })
                             }
@@ -180,9 +178,6 @@ client.on('ready', () => {
                                 if (!logChannel) console.log('No logchannel defined for this guild!');
                                 else console.log(error);
                             }
-                        }
-                        else {
-                            console.log(`User ${j} not found!`)
                             try {
                                 delete bans[j];
                                 fs.writeFile("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
@@ -200,7 +195,7 @@ client.on('ready', () => {
         }
     }, 1000);
 });
-client.on('message', message => {
+bot.on('message', message => {
     if (message.author.bot) return;
     if (!(message.channel.type === "text")) return;
 
@@ -210,11 +205,11 @@ client.on('message', message => {
 
     if (!command.startsWith(config.prefix)) return;
 
-    let cmd = client.commands.get(command.slice(config.prefix.length));
-    if (cmd) cmd.run(client, message, args);
+    let cmd = bot.commands.get(command.slice(config.prefix.length));
+    if (cmd) cmd.run(bot, message, args);
 });
 
-client.on('guildMemberAdd', member => {
+bot.on('guildMemberAdd', member => {
     let logChannel = member.guild.channels.get(guilds[member.guild.id].logChannelID)
     try {
         logChannel.send({
@@ -233,9 +228,9 @@ client.on('guildMemberAdd', member => {
     console.log(`Member joined! ${member.user.tag}`);
 });
 
-//below is repeat-logged when member kicked/banned!
+//below is repeat-logged when member kicked/banned. Must fix when warnings introduced.
 
-client.on('guildMemberRemove', member => {
+bot.on('guildMemberRemove', member => {
     let logChannel = member.guild.channels.get(guilds[member.guild.id].logChannelID)
     try {
         logChannel.send({
@@ -254,7 +249,7 @@ client.on('guildMemberRemove', member => {
     console.log(`Member left! ${member.user.tag}`);
 });
 
-client.on('guildCreate', guild => {
+bot.on('guildCreate', guild => {
     guilds[guild.id] = {
         logChannelID: "",
         botChannelID: "",
@@ -268,7 +263,7 @@ client.on('guildCreate', guild => {
 
 // please fix: the below will activate even if user has been banned by bot. Will result in multiple logs.
 
-// client.on('guildBanAdd', guild, user => {
+// bot.on('guildBanAdd', guild, user => {
 //     let logChannel = guild.channels.get(guilds[guild.id].logChannelID)
 //     try {
 //         logChannel.send({
@@ -287,7 +282,7 @@ client.on('guildCreate', guild => {
 
 //same for below.
 
-// client.on('guildBanRemove', guild, user => {
+// bot.on('guildBanRemove', guild, user => {
 //     let logChannel = guild.channels.get(guilds[guild.id].logChannelID)
 //     try {
 //         logChannel.send({
@@ -305,17 +300,17 @@ client.on('guildCreate', guild => {
     // remove ban length from json
 // });
 
-client.on('error', error => {
+bot.on('error', error => {
     console.log(`Bot has been disconnected with an error!\n${error}`)
 });
-client.on('disconnect', event => {
-    client.log(`Disconnected!\n${event.reason}`)
+bot.on('disconnect', event => {
+    bot.log(`Disconnected!\n${event.reason}`)
 });
 
-client.login(config.token)
+bot.login(config.token)
     .then ('Successful Login.')
     .catch (error => {
         console.log(`Login unsuccessful!\n${error}`)
     })
 
-module.exports = client;
+module.exports = bot;
