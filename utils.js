@@ -1,6 +1,7 @@
 // const bot = require('./bot');
 const Discord = require('discord.js');
-const guilds = require("./configs/guilds.json")
+const guilds = require("./configs/guilds.json");
+const sqlite3 = require('sqlite3').verbose();
 
 exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString) => {
     if (!guildID) return console.log(`guildID is not defined!`);
@@ -29,4 +30,13 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString) 
         if (!logChannel) return console.log(`LoggerERR: No logchannel defined for this guild!`)
         else console.log(error)
     }
+}
+
+exports.warning = (bot, guildID, user, string, severity) => {
+    let db = new sqlite3.Database('./db/warnings', (err) => {
+        if (err) {
+        console.error(err.message);
+        }
+        console.log('Connected to the chinook database.');
+    });
 }
