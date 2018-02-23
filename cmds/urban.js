@@ -2,7 +2,6 @@ const webdict = module.require('webdict');
 const Discord = module.require('discord.js');
 const guilds = require("../configs/guilds.json");
 
-
 module.exports.run = async (bot, message, args) => {
     if (message.channel.id === guilds[message.guild.id].botChannelID ||
         message.channel.id === guilds[message.guild.id].adminbotChannelID) {
