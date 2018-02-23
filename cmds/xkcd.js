@@ -1,8 +1,7 @@
 // Borrowed from SharpBot by RayzrDev - https://github.com/RayzrDev/SharpBot
-
+const Discord = require('discord.js');
 const guilds = require('../configs/guilds.json');
 const got = require('got');
-const Discord = require('discord.js');
 
 module.exports.run = async (bot, message, args) => {
     if (message.channel.id === guilds[message.guild.id].botChannelID ||

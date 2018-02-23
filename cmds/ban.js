@@ -1,6 +1,5 @@
 const fs = module.require("fs");
 const Discord = require("discord.js");
-const config = require("../configs/config.json");
 const guilds = require("../configs/guilds.json")
 const bans = module.require("../configs/bans.json");
 

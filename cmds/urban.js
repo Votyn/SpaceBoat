@@ -1,6 +1,5 @@
 const webdict = module.require('webdict');
 const Discord = module.require('discord.js');
-const config = require("../configs/config.json");
 const guilds = require("../configs/guilds.json");
 
 
