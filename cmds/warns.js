@@ -2,10 +2,24 @@ const Discord = require('discord.js');
 const guilds = require("../configs/guilds.json");
 
 module.exports.run = async (bot, message, args) => {
+    //import logChannel.
+    const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
     if (!(message.channel.type === "text")) return;
     if (message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         if (!args[0]) {
-            //show a snowflake of all warns.
+            try {
+                logChannel.send({
+                    embed: new Discord.RichEmbed()
+                        .setTitle(``)
+                        .setDescription(``)
+                        .setTimestamp()
+                })
+            }
+            catch (error) {
+                if (!guildID) return console.log(`ERR: No guildID given!`)
+                if (!logChannel) return console.log(`ERR: No logchannel defined for this guild!`)
+                else console.log(error)
+            }
         }
         else if (args[0] == 'config') {
             if (!args[1]) {
