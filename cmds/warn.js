@@ -1,5 +1,5 @@
 const Discord = require('discord.js');
-const guilds = require("../configs/guilds.json");
+const guilds = require("../data/guilds.json");
 
 module.exports.run = async (bot, message, args) => {
     if (!(message.channel.type === "text")) return;

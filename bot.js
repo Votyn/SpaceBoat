@@ -1,19 +1,19 @@
 const Discord = module.require("discord.js");
 const fs = module.require("fs");
-const config = require("./configs/config.json");
-const mutes = require("./configs/mutes.json");
-const bans = require("./configs/bans.json");
+const config = require("./data/config.json");
+const mutes = require("./data/mutes.json");
+const bans = require("./data/bans.json");
 
 try {
-        var guilds = require("./configs/guilds.json");
+        var guilds = require("./data/guilds.json");
     }
 catch (error) {
     console.log('ERROR: No guilds.json file found!');
     console.log("Creating new guilds.json file.");
-    fs.writeFileSync("./configs/guilds.json", JSON.stringify({}, null, 4), err => {
+    fs.writeFileSync("./data/guilds.json", JSON.stringify({}, null, 4), err => {
         if (err) console.error('Error saving guilds.json file:', err);
     });
-    var guilds = require("./configs/guilds.json");
+    var guilds = require("./data/guilds.json");
 }
 
 const bot = new Discord.Client();
@@ -53,7 +53,7 @@ bot.on('ready', () => {
                 botChannelID: "",
                 adminbotChannelID: ""
             }
-            fs.writeFile("./configs/guilds.json", JSON.stringify(guilds, null, 4), err => {
+            fs.writeFile("./data/guilds.json", JSON.stringify(guilds, null, 4), err => {
                 if (err) console.error('Error saving guilds.json file:', err);
             });
             console.log("Guild added to guilds.json. Please configure channelIDs.");
@@ -66,7 +66,7 @@ bot.on('ready', () => {
             console.log(`Error: Guild not found! Removing from records...`);
             guilds[i] = null;
             delete guilds[i];
-            fs.writeFile("./configs/guilds.json", JSON.stringify(guilds, null, 4), err => {
+            fs.writeFile("./data/guilds.json", JSON.stringify(guilds, null, 4), err => {
                 if (err) console.error('Error saving guilds.json file: ', err);
             });
             console.log(`Removed successfully!`);
@@ -95,7 +95,7 @@ bot.on('ready', () => {
                 if (!member) {
                     console.log('ERROR: User is not in the server anymore!'); 
                     delete mutes[i];
-                    fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
                     });
                     continue;
@@ -104,7 +104,7 @@ bot.on('ready', () => {
                 if (!member.roles.has(mutedRole.id)) { 
                     console.log('User has been manually unmuted!'); 
                     delete mutes[i];
-                    fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
                     });
                     let logChannel = guild.channels.get(guilds[guildID].logChannelID)
@@ -135,7 +135,7 @@ bot.on('ready', () => {
                     //remove the entry
                     mutes[i] = null;
                     delete mutes[i];
-                    fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
+                    fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file:', err);
                     });
                 }
@@ -154,7 +154,7 @@ bot.on('ready', () => {
                             guild.unban(user, `Automatic: Tempban term ended.`)
                             try {
                                 delete bans[j];
-                                fs.writeFile("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
+                                fs.writeFile("./data/bans.json", JSON.stringify(bans, null, 4), err => {
                                     if (err) console.error('Error saving bans.json file:', err);
                                 });
                             }
@@ -180,7 +180,7 @@ bot.on('ready', () => {
                             }
                             try {
                                 delete bans[j];
-                                fs.writeFile("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
+                                fs.writeFile("./data/bans.json", JSON.stringify(bans, null, 4), err => {
                                     if (err) console.error('Error saving bans.json file:', err);
                                 });
                             }
@@ -254,7 +254,7 @@ bot.on('guildCreate', guild => {
         botChannelID: "",
         adminbotChannelID: ""
     }
-    fs.writeFile("./configs/guilds.json", JSON.stringify(guilds, null, 4), err => {
+    fs.writeFile("./data/guilds.json", JSON.stringify(guilds, null, 4), err => {
         if (err) console.error('Error saving guilds.json file:', err);
     });
     console.log(`Joined new server! Please set up Channel IDs.`)

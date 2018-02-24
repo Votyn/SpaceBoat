@@ -1,4 +1,4 @@
-const guilds = require("../configs/guilds.json");
+const guilds = require("../data/guilds.json");
 
 module.exports.run = (bot, message, args) => {
     if (message.channel.type === 'dm' ||

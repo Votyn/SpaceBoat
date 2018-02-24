@@ -1,6 +1,6 @@
 // const bot = require('./bot');
 const Discord = require('discord.js');
-const guilds = require("./configs/guilds.json");
+const guilds = require("./data/guilds.json");
 const sqlite3 = require('sqlite3').verbose();
 
 exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, other, thumbnail) => {

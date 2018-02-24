@@ -1,6 +1,6 @@
 // Borrowed from SharpBot by RayzrDev - https://github.com/RayzrDev/SharpBot
 const Discord = require('discord.js');
-const guilds = require('../configs/guilds.json');
+const guilds = require('../data/guilds.json');
 const got = require('got');
 
 module.exports.run = async (bot, message, args) => {
