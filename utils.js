@@ -42,7 +42,7 @@ exports.randomSelection = (choices) => {
 
 exports.warning = async (bot, guildID, userID, moderatorID, string, severity) => {
     // open database connection
-    let db = await new sqlite3.Database('./db/users.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
+    let db = await new sqlite3.Database('./data/data.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
         if (err) return console.error(err.message);
         console.log('Connected to the SQLite users database.');
     })
