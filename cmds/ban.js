@@ -129,5 +129,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "ban",
     usage: "ban <username> <reason>",
+    type: "Moderation",
     description: "bans the specified user, with an optional reason."
 }

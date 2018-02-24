@@ -17,7 +17,14 @@ module.exports.run = async (bot, message, args) => {
             })
             .catch (error => {
                 console.log('Error serving urban dictionary definition');
-                message.channel.send(':x:').then(m => m.delete(10000));
+                let message = bot.utils.randomSelection([
+                    `What's that meant to be?`,
+                    `:rauf:`,
+                    `Sorry I can't find that in the urban dictionary...`,
+                    `:tearthonk:`,
+                    `Not here!`
+                ]);
+                message.channel.send(message).then(m => m.delete(10000));
             })
     }
 }
@@ -25,5 +32,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "urban",
     usage: "urban <term>",
+    type: "Fun",
     description: "Searches the Urban Dictionary for the specified term."
 }

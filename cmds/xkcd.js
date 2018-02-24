@@ -54,5 +54,6 @@ async function getRandom() {
 module.exports.help = {
     name: 'xkcd',
     usage: 'xkcd [latest|<id>]',
+    type: 'Fun',
     description: 'Fetches random or specific XKCD comics'
 };

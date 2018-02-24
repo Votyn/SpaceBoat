@@ -103,6 +103,7 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "warn",
     usage: "warn <user> <severity> <warning>",
+    type: "Moderation",
     description: "Adds a warning attached to the user to the database."
 }
 

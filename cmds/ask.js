@@ -114,5 +114,6 @@ module.exports.run = (bot, message, args) => {
 module.exports.help = {
     name: 'ask',
     usage: 'ask <question>',
+    type: 'Fun',
     description: 'Ask Space Boat a question. Don\'t expect it to be right though.'
 };

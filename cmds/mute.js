@@ -180,5 +180,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "mute",
     usage: "mute <username> <time (in minutes)",
+    type: "Moderation",
     description: "Mutes the specified user, for an optionally specified amount of time, in minutes."
 }

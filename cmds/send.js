@@ -8,5 +8,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "send",
     usage: "send <message>",
+    type: "Private",
     description: "Sends a message via the bot. Restricted to bot owner."
 }
