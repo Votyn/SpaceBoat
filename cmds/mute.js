@@ -4,6 +4,7 @@ const guilds = require("../configs/guilds.json");
 const mutes = require("../configs/mutes.json");
 
 module.exports.run = async (bot, message, args) => {
+    if (!(message.channel.type === "text")) return;
     console.log("muting...");
     //import logChannel.
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);

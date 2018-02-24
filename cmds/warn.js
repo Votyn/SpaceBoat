@@ -2,6 +2,7 @@ const Discord = require('discord.js');
 const guilds = require("../configs/guilds.json");
 
 module.exports.run = async (bot, message, args) => {
+    if (!(message.channel.type === "text")) return;
     console.log("warning...");
     // load logChannel
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);

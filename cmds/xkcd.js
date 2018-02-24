@@ -4,7 +4,8 @@ const guilds = require('../configs/guilds.json');
 const got = require('got');
 
 module.exports.run = async (bot, message, args) => {
-    if (message.channel.id === guilds[message.guild.id].botChannelID ||
+    if (message.channel.type === 'dm' ||
+        message.channel.id === guilds[message.guild.id].botChannelID ||
         message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         let id;
 

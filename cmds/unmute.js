@@ -3,6 +3,7 @@ const Discord = module.require("discord.js");
 const guilds = require("../configs/guilds.json");
 
 module.exports.run = async (bot, message, args) => {
+    if (!(message.channel.type === "text")) return;
     console.log("unmuting...");
     // check permission
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to unmute without sufficient permissions!`);

@@ -3,6 +3,7 @@ const guilds = require("../configs/guilds.json");
 const fs = module.require("fs");
 
 module.exports.run = async (bot, message, args) => {
+    if (!(message.channel.type === "text")) return;
     if (!message.member.hasPermission("MANAGE_SERVER")) return console.log(`${message.author.tag} attempted 'config' command with insufficient permissions.`);
     if (args[0] == 'logchannel') {
         guilds[message.channel.guild.id].logChannelID = message.channel.id

@@ -3,7 +3,8 @@ const Discord = module.require('discord.js');
 const guilds = require("../configs/guilds.json");
 
 module.exports.run = async (bot, message, args) => {
-    if (message.channel.id === guilds[message.guild.id].botChannelID ||
+    if (message.channel.type === 'dm' ||
+        message.channel.id === guilds[message.guild.id].botChannelID ||
         message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         let term = args.join(' ');
         await webdict('urbandictionary', term)
