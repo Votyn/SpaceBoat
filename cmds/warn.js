@@ -4,8 +4,6 @@ const guilds = require("../configs/guilds.json");
 module.exports.run = async (bot, message, args) => {
     if (!(message.channel.type === "text")) return;
     console.log("warning...");
-    // load logChannel
-    const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
     // can this user ban members?
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to warn without sufficient permissions!`);
     // Get the mentioned member object
