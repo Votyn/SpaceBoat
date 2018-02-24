@@ -24,34 +24,8 @@ module.exports.run = (bot, message, args) => {
         }
         else if (message.channel.type === 'text') {
             randomUserID = message.mentions.members.randomKey()
-            if (randomUserID) {
-                let response = bot.utils.randomSelection([
-                    `Why don't you ask them yourself?`,
-                    `Let them answer that question. I don't know everything after all.`,
-                    `Some questions are best left to those whom they involve.`,
-                    `Why not ask them yourself?`,
-                    `Well since you mentioned them, let them answer :rauf:`,
-                    `I don't think so...`,
-                    `Maybe they do...`,
-                    `That's not for me to say.`,
-                    `Why though?`,
-                    `Not sure. Ask again later maybe?`,
-                    `Soon:tm:`,
-                    `Not likely`,
-                    `I think so.`,
-                    `I'm not sure.`,
-                    `Why would you ask that? :rauf:`,
-                    `I hope not!`,
-                    `I hope so...`,
-                    `Well now that you ask...`,
-                    `I would count on it.`,
-                    `Is that even a question?`,
-                    `Not on my watch!`,
-                ]);
-                return message.channel.send(response);
-            }
-            else if (message.mentions.members.has(166125035092836352) ||
-                     message.content.toLowerCase().indexOf('votyn') > 1 ) {
+            if (message.mentions.members.has(166125035092836352) ||
+                message.content.toLowerCase().indexOf('votyn') > 1 ) {
                 let response = bot.utils.randomSelection([
                     `That's not something I'm willing to discuss.`,
                     `Why don't you ask him yourself?`,
@@ -77,6 +51,33 @@ module.exports.run = (bot, message, args) => {
                 ]);
                 return message.channel.send(response);
             }
+            else if (randomUserID) {
+                let response = bot.utils.randomSelection([
+                    `Why don't you ask them yourself?`,
+                    `Let them answer that question. I don't know everything after all.`,
+                    `Some questions are best left to those whom they involve.`,
+                    `Why not ask them yourself?`,
+                    `Well since you mentioned them, let them answer :rauf:`,
+                    `I don't think so...`,
+                    `Maybe they do...`,
+                    `That's not for me to say.`,
+                    `Why though?`,
+                    `Not sure. Ask again later maybe?`,
+                    `Soon:tm:`,
+                    `Not likely`,
+                    `I think so.`,
+                    `I'm not sure.`,
+                    `Why would you ask that? :rauf:`,
+                    `I hope not!`,
+                    `I hope so...`,
+                    `Well now that you ask...`,
+                    `I would count on it.`,
+                    `Is that even a question?`,
+                    `Not on my watch!`,
+                ]);
+                return message.channel.send(response);
+            }
+        
         }
         else {
             let response = bot.utils.randomSelection([

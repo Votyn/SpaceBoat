@@ -4,6 +4,20 @@ const guilds = require("../configs/guilds.json");
 module.exports.run = async (bot, message, args) => {
     //import logChannel.
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
+    
+    let db = new sqlite3.Database('./data/data.db');
+
+    let sql = `SELECT DISTINCT Name name FROM playlists
+           ORDER BY name`;
+
+    db.all(sql, [], (err, rows) => {
+        if (err) {
+            throw err;
+        }
+        rows.forEach((row) => {
+            console.log(row.name);
+        });
+    });
     if (!(message.channel.type === "text")) return;
     if (message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         if (!args[0]) {
@@ -63,7 +77,7 @@ module.exports.run = async (bot, message, args) => {
         else if (!isNaN(args[0])) {
             //show warns for this user
         }
-        
+
     }
 }
 
