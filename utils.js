@@ -48,7 +48,7 @@ exports.warning = async (bot, guildID, userID, moderatorID, string, severity) =>
     })
     // create warnings table if it doesn't exist
     console.log(`Creating table...`)
-    await db.run('CREATE TABLE IF NOT EXISTS warnings (guild_id integer, user_id integer, moderator_id integer, warn_str text, severity integer, date integer)', function(err) {
+    await db.run('CREATE TABLE IF NOT EXISTS warnings (warn_id integer PRIMARY KEY, guild_id integer, user_id integer, moderator_id integer, warn_str text, severity integer, date integer)', function(err) {
         if (err) return console.error(err.message);
         else console.log(`Table created successfully.`);
     })
