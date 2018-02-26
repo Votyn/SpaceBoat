@@ -1,15 +1,40 @@
 const Discord = module.require("discord.js");
 const fs = module.require("fs");
 const config = require("./data/config.json");
-const mutes = require("./data/mutes.json");
-const bans = require("./data/bans.json");
+try {
+    var mutes = require("./data/config.json");
+}
+catch (error) {
+    console.log(`${message.error}\nPlease edit the config-example.json file, and rename it as config.json!`)
+}
+try {
+    var mutes = require("./data/mutes.json");
+}
+catch (error) {
+    console.log(`${error.message}`);
+    fs.writeFileSync("./data/mutes.json", JSON.stringify({}, null, 4), err => {
+        if (err) console.error('Error creating mutes.json file:', err);
+    });
+    var mutes = require("./data/mutes.json");
+    console.log(`Creating new mutes.json file.`);
+}
+try {
+    var bans = require("./data/bans.json");
+}
+catch (error) {
+    console.log(`${error.message}`);
+    fs.writeFileSync("./data/bans.json", JSON.stringify({}, null, 4), err => {
+        if (err) console.error('Error creating bans.json file:', err);
+    });
+    var bans = require("./data/bans.json");
+    console.log(`Creating new bans.json file.`);
+}
 
 try {
-        var guilds = require("./data/guilds.json");
-    }
+    var guilds = require("./data/guilds.json");
+}
 catch (error) {
-    console.log('ERROR: No guilds.json file found!');
-    console.log("Creating new guilds.json file.");
+    console.log(`${error.message}\nCreating new guilds.json file.`);
     fs.writeFileSync("./data/guilds.json", JSON.stringify({}, null, 4), err => {
         if (err) console.error('Error saving guilds.json file:', err);
     });
@@ -44,7 +69,7 @@ fs.readdir("./cmds/", (err, files) => {
 bot.on('ready', () => {
     console.log(`${bot.user.username} switched on.`);
 
-    let botGuildsIDs = Array.from( bot.guilds.keys() );
+    let botGuildsIDs = Array.from(bot.guilds.keys());
     for (let i in botGuildsIDs) {
         if (!guilds.hasOwnProperty(botGuildsIDs[i])) {
             console.log(`Setting up ${botGuildsIDs[i]}`);
@@ -83,9 +108,9 @@ bot.on('ready', () => {
         }
         console.log(`Server [${guild.name}] loaded with ${guild.channels.size} channels and ${guild.memberCount} members.`);
     }
-
-    bot.setInterval(() => {
-            for ( let i in mutes) {
+    if (mutes) {
+        bot.setInterval(() => {
+            for (let i in mutes) {
                 let time = mutes[i].time;
                 let guildID = mutes[i].guild;
                 let guild = bot.guilds.get(guildID);
@@ -93,7 +118,7 @@ bot.on('ready', () => {
                 let mutedRole = guild.roles.find(r => r.name === "Muted");
                 // check if member is still in server
                 if (!member) {
-                    console.log('ERROR: User is not in the server anymore!'); 
+                    console.log('ERROR: User is not in the server anymore!');
                     delete mutes[i];
                     fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
@@ -101,8 +126,8 @@ bot.on('ready', () => {
                     continue;
                 }
                 // check if the member has the muted role.
-                if (!member.roles.has(mutedRole.id)) { 
-                    console.log('User has been manually unmuted!'); 
+                if (!member.roles.has(mutedRole.id)) {
+                    console.log('User has been manually unmuted!');
                     delete mutes[i];
                     fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                         if (err) console.error('Error saving mutes.json file: ', err);
@@ -140,60 +165,63 @@ bot.on('ready', () => {
                     });
                 }
             }
-    });
-    bot.setInterval(() => {
-        for (let j in bans) {
-            let time = bans[j].time;
-            let guildID = bans[j].guild;
-            let guild = bot.guilds.get(guildID);
-            guild.fetchBans()
-                .then(Collection => {
-                    let user = Collection.get(j)
-                    if (Date.now() > time) {
-                        if (user) {
-                            guild.unban(user, `Automatic: Tempban term ended.`)
-                            try {
-                                delete bans[j];
-                                fs.writeFile("./data/bans.json", JSON.stringify(bans, null, 4), err => {
-                                    if (err) console.error('Error saving bans.json file:', err);
-                                });
+        });
+    }
+    if (bans) {
+        bot.setInterval(() => {
+            for (let j in bans) {
+                let time = bans[j].time;
+                let guildID = bans[j].guild;
+                let guild = bot.guilds.get(guildID);
+                guild.fetchBans()
+                    .then(Collection => {
+                        let user = Collection.get(j)
+                        if (Date.now() > time) {
+                            if (user) {
+                                guild.unban(user, `Automatic: Tempban term ended.`)
+                                try {
+                                    delete bans[j];
+                                    fs.writeFile("./data/bans.json", JSON.stringify(bans, null, 4), err => {
+                                        if (err) console.error('Error saving bans.json file:', err);
+                                    });
+                                }
+                                catch (error) { console.log(error) }
+                                let logChannel = guild.channels.get(guilds[guildID].logChannelID)
+                                console.log(`${user.username} has been unbanned.`);
+                                bot.utils.logChannel(bot, guildID, `Member unbanned.`, user, bot.user, `Automatically unbanned - Temporary ban term ended.`)
                             }
-                            catch(error) { console.log(error) }
-                            let logChannel = guild.channels.get(guilds[guildID].logChannelID)
-                            console.log(`${user.username} has been unbanned.`);
-                            bot.utils.logChannel(bot, guildID, `Member unbanned.`, user, bot.user, `Automatically unbanned - Temporary ban term ended.`)
-                        }
-                        else {
-                            console.log(`User ${j} not found!`)
-                            try {
-                                logChannel.send({
-                                    embed: new Discord.RichEmbed()
-                                        .setDescription(`${member} was unbanned manually before the end of term.`)
-                                        .setFooter(`ID: ${member.id}`)
-                                        .setAuthor(`Member was unbanned.`, member.user.displayAvatarURL)
-                                        .setTimestamp()
-                                })
+                            else {
+                                console.log(`User ${j} not found!`)
+                                try {
+                                    logChannel.send({
+                                        embed: new Discord.RichEmbed()
+                                            .setDescription(`${member} was unbanned manually before the end of term.`)
+                                            .setFooter(`ID: ${member.id}`)
+                                            .setAuthor(`Member was unbanned.`, member.user.displayAvatarURL)
+                                            .setTimestamp()
+                                    })
+                                }
+                                catch (error) {
+                                    if (!logChannel) console.log('No logchannel defined for this guild!');
+                                    else console.log(error);
+                                }
+                                try {
+                                    delete bans[j];
+                                    fs.writeFile("./data/bans.json", JSON.stringify(bans, null, 4), err => {
+                                        if (err) console.error('Error saving bans.json file:', err);
+                                    });
+                                }
+                                catch (error) { console.log(error) }
                             }
-                            catch (error) {
-                                if (!logChannel) console.log('No logchannel defined for this guild!');
-                                else console.log(error);
-                            }
-                            try {
-                                delete bans[j];
-                                fs.writeFile("./data/bans.json", JSON.stringify(bans, null, 4), err => {
-                                    if (err) console.error('Error saving bans.json file:', err);
-                                });
-                            }
-                            catch(error) { console.log(error) }
+                            return;
                         }
                         return;
-                    }
-                    return;
-                })
-                .catch(error => {console.log(error)});
-            continue;
-        }
-    }, 1000);
+                    })
+                    .catch(error => { console.log(error) });
+                continue;
+            }
+        }, 30000);
+    }
 });
 bot.on('message', message => {
     if (message.author.bot) return;
@@ -296,19 +324,19 @@ bot.on('guildCreate', guild => {
 //         if (!logChannel) console.log('No logchannel defined for this guild!');
 //         else console.log(error);
 //     }
-    // remove ban length from json
+// remove ban length from json
 // });
 
 bot.on('error', error => {
     console.log(`Bot has been disconnected with an error!\n${error}`)
 });
 bot.on('disconnect', event => {
-    bot.log(`Disconnected!\n${event.reason}`)
+    console.log(`Disconnected!\n${event.reason}`)
 });
 
 bot.login(config.token)
-    .then ('Successful Login.')
-    .catch (error => {
+    .then('Successful Login.')
+    .catch(error => {
         console.log(`Login unsuccessful!\n${error}`)
     })
 
