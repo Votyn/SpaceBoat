@@ -18,7 +18,7 @@ module.exports.run = async (bot, message, args) => {
     if (!args[1]) {
         console.log(`${message.author.username} failed to specify a warning string!`);
         // Random error messages. This is gunna be great.
-        let nowarnerr = bot.utils.randomSelection([
+        let response = bot.utils.randomSelection([
             `What.. what did they do? I can't just figure that out by myself you know...`,
             `Please specify a warning.`,
             `Hey I'm a busy bot, you ask me to add a warn and not tell me why?`,
@@ -29,7 +29,7 @@ module.exports.run = async (bot, message, args) => {
             `Please specify a warning message...`,
             `You forgot to specify a warning message.`
         ]);
-        (await message.channel.send(nowarnerr)).delete(10000);
+        (await message.channel.send(response)).delete(10000);
         return;
     }
 
@@ -41,7 +41,7 @@ module.exports.run = async (bot, message, args) => {
     }
     else if (!args[2]) {
         console.log(`${message.author.username} failed to specify a warning.`);
-        let nowarnerr = bot.utils.randomSelection([
+        let response = bot.utils.randomSelection([
             `What did they do? I can't just figure that out by myself you know...`,
             `Please specify a warning.`,
             `Hey I'm a busy bot, you ask me to add a warn and not tell me why?`,
@@ -52,13 +52,13 @@ module.exports.run = async (bot, message, args) => {
             `Please specify a warning message...`,
             `You forgot to specify a warning message.`,
             `What am I meant to do with just a number?`
-        ])
-        (await message.channel.send(nowarnerr)).delete(10000);
+        ]);
+        (await message.channel.send(response)).delete(10000);
         return;
     }
     else if (args[1] < 0) {
         console.log(`Invalid severity`)
-        let invalidseverityerror = bot.utils.randomSelection([
+        let response = bot.utils.randomSelection([
             `That's a bit... not right... Can you supply a *valid* severity value please? Like... from 1 to 10... thanks.`,
             `That's an invalid severity right there! 1 to 10 please. Only. kthxbai`,
             `You do realise that the first parameter of this is meant to be a severity value right? like from 1 to 10.. not ${args[1]}`,
@@ -67,12 +67,12 @@ module.exports.run = async (bot, message, args) => {
             `Pretty sure that's a negative number you just set the severity at. I don't think that works... :joy:`,
             `That's meant to be a severity value right?`                
         ]);
-        (await message.channel.send(invalidseverityerror)).delete(10000);
+        (await message.channel.send(response)).delete(10000);
         return;
     }
     else if (args[1] > 10) {
         console.log(`Invalid severity`)
-        let invalidseverityerror = bot.utils.randomSelection([
+        let response = bot.utils.randomSelection([
             `That's a bit... not right... Can you supply a *valid* severity value please? Like... from 1 to 10... thanks.`,
             `That's an invalid severity right there! 1 to 10 please. Only. kthxbai`,
             `You do realise that the first parameter of this is meant to be a severity value right? like from 1 to 10.. not ${args[1]}`,
@@ -81,7 +81,7 @@ module.exports.run = async (bot, message, args) => {
             `That's a bit too big for a severity value.. Just a bit.`,
             `... That's a bit too big for me... That severity value.. Mind making it smaller? Please? Thanks... :sweat_smile:`
         ]);
-        (await message.channel.send(invalidseverityerror)).delete(10000);
+        (await message.channel.send(response)).delete(10000);
         return;
     };
     if (!isNaN(args[1])) {
@@ -96,7 +96,7 @@ module.exports.run = async (bot, message, args) => {
         .catch(console.error);
     await bot.utils.warning(bot, guildID, userID, moderator.id, warningString, severity)
         .then(message.channel.send(`User has been warned.`))
-        .catch(console.error);
+        .catch(error => {console.log(error.message)});
     bot.utils.logChannel(bot, guildID, `Member warned!`, target.user, moderator, '', '', `\n**Severity:** ${severity}\n**Warning:** ${warningString}`);
 }
 

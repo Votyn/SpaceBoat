@@ -16,7 +16,7 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, 
     // check for timeString
     if (!timeString || timeString == '') { var timeString = '' }
     // check if other supplied
-    if (!other || other == '') { var other = '' } 
+    if (!other || other == '') { var other = '' }
     // do the actual embed
     try {
         logChannel.send({
@@ -39,28 +39,55 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, 
 exports.randomSelection = (choices) => {
     return choices[Math.floor(Math.random() * choices.length)];
 }
-
 exports.warning = async (bot, guildID, userID, moderatorID, string, severity) => {
-    // open database connection
-    let db = await new sqlite3.Database('./data/data.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
-        if (err) return console.error(err.message);
-        console.log('Connected to the SQLite users database.');
-    })
     // create warnings table if it doesn't exist
-    console.log(`Creating table...`)
-    await db.run('CREATE TABLE IF NOT EXISTS warnings (warn_id integer PRIMARY KEY, guild_id integer, user_id integer, moderator_id integer, warn_str text, severity integer, date integer)', function(err) {
-        if (err) return console.error(err.message);
-        else console.log(`Table created successfully.`);
-    })
+    function createtable(cb) {
+        db.run('CREATE TABLE IF NOT EXISTS warnings (warn_id integer PRIMARY KEY, guild_id integer, user_id integer, moderator_id integer, warn_str text, severity integer, date integer)', 
+        function (err) {
+            if (err) {
+                cb(err.message)
+            }
+            else {
+                console.log(`Warnings table opened/created successfully.`);
+                cb(null)
+            }
+        })
+    }
     // perform the insertion
-    await db.run(`INSERT INTO warnings (guild_id, user_id, moderator_id, warn_str, severity, date) VALUES(?,?,?,?,?,?)`, [guildID, userID, moderatorID, string, severity, Date.now()], function(err) {
+    function insertwarning(guildID, userID, moderatorID, string, severity, cb) {
+        db.run(
+            "INSERT INTO warnings (guild_id, user_id, moderator_id, warn_str, severity, date) VALUES(?,?,?,?,?,?)", 
+            [guildID, userID, moderatorID, string, severity, Date.now()], 
+            function (err) {
+            if (err) {
+                cb(err.message)
+            }
+            else {
+                console.log(`Warning insertion successful. Warning ID: ${this.lastID}`);
+                cb(null)
+            }
+        })
+    }
+    // open database connection
+    var db = await new sqlite3.Database('./data/data.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
         if (err) return console.error(err.message);
-        else console.log(`Successfully inserted warning into SQLite table, with rowid ${this.lastID}`);
-    });
+        else {
+            console.log('Connected to data.db');
+            createtable(function(err) {
+                if (err) return console.log(err);
+                insertwarning(guildID, userID, moderatorID, string, severity, function(err) {
+                    if (err) {
+                        console.log(err);
+                        return
+                    }
+                })
+            })
+        }
+    })
     await db.close((err) => {
         if (err) {
-          return console.error(err.message);
+            return console.error(err.message)
         }
         console.log('Closed database connection.');
-      });
+    });
 }
