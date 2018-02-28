@@ -27,7 +27,7 @@ module.exports.run = async (bot, message, args) => {
                     `<:rauf:383848644413095937>`,
                     `<:tearthonk:383856193073840129>`,
                     `<:sweats:370656909134659604>`,
-                    `<:gone:418391448141168640>`
+                    `<a:gone:393837219854680066>`
                 ]);
                 message.channel.send(response);
             })
