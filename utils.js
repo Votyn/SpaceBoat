@@ -30,3 +30,7 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString) 
         else console.log(error)
     }
 }
+
+exports.randomSelection = (choices) => {
+    return choices[Math.floor(Math.random() * choices.length)];
+}
