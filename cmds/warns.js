@@ -24,17 +24,22 @@ module.exports.run = async (bot, message, args) => {
         if (err) {
             throw err;
         }
+        //don't forget to make sure that the guilds remain seperate...
         console.log(rows)
         console.log(rows[0].warn_id)
+        let embed = new Discord.RichEmbed().setTitle(`List of all warnings`);
+        Object.keys(rows).forEach(key => {
+            let warn = rows[key]
+            console.log(warn)
+            let title = message.guild.members.get(warn.user_id)
+            let field = `**Mod:** ${message.guild.members.get(warn.moderator_id)}\n**Severity:** ${warn.severity}\n**String:** "${warn.warn_str}"\n`
+            embed.addField(`**${title}**`, field, true)
+            
+        });
         try {
-            logChannel.send({
-                embed: new Discord.RichEmbed()
-                    .setTitle(`List of all warnings`)
-                    .setTimestamp()
-            })
+            logChannel.send( {embed} )
         }
         catch (error) {
-            if (!guildID) return console.log(`ERR: No guildID given!`)
             if (!logChannel) return console.log(`ERR: No logchannel defined for this guild!`)
             else console.log(error)
         }
