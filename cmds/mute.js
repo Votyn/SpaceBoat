@@ -1,10 +1,10 @@
 const fs = module.require("fs");
 const Discord = module.require('discord.js');
-const config = require("../configs/config.json");
-const guilds = require("../configs/guilds.json");
-const mutes = require("../configs/mutes.json");
+const guilds = require("../data/guilds.json");
+const mutes = require("../data/mutes.json");
 
 module.exports.run = async (bot, message, args) => {
+    if (!(message.channel.type === "text")) return;
     console.log("muting...");
     //import logChannel.
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
@@ -147,7 +147,7 @@ module.exports.run = async (bot, message, args) => {
                 guild: message.guild.id,
                 time: Date.now() + muteLength * multiplier * 1000
             }
-            fs.writeFileSync("./configs/mutes.json", JSON.stringify(mutes, null, 4), err => {
+            fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                 if (err) throw err;
             });
             //notify logchannel.
@@ -180,5 +180,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "mute",
     usage: "mute <username> <time (in minutes)",
+    type: "Moderation",
     description: "Mutes the specified user, for an optionally specified amount of time, in minutes."
 }

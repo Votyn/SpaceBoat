@@ -1,10 +1,10 @@
 const fs = module.require("fs");
 const Discord = require("discord.js");
-const config = require("../configs/config.json");
-const guilds = require("../configs/guilds.json")
-const bans = module.require("../configs/bans.json");
+const guilds = require("../data/guilds.json")
+const bans = module.require("../data/bans.json");
 
 module.exports.run = async (bot, message, args) => {
+    if (!(message.channel.type === "text")) return;
     console.log("banning...");
     //load logChannel
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
@@ -96,7 +96,7 @@ module.exports.run = async (bot, message, args) => {
                 guild: message.guild.id,
                 time: Date.now() + banPeriod * multiplier * 3600000
             }
-            fs.writeFileSync("./configs/bans.json", JSON.stringify(bans, null, 4), err => {
+            fs.writeFileSync("./data/bans.json", JSON.stringify(bans, null, 4), err => {
                 if (err) throw err;
             });
             //notify logchannel.
@@ -129,5 +129,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "ban",
     usage: "ban <username> <reason>",
+    type: "Moderation",
     description: "bans the specified user, with an optional reason."
 }

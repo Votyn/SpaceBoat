@@ -33,5 +33,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: 'eval',
     usage: 'eval <js code>',
-    description: 'Evaluates some JavaScript code',
+    type: "Private",
+    description: 'Evaluates some JavaScript code. Restricted to bot owner.',
 };

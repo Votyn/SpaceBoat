@@ -1,8 +1,8 @@
 const Discord = require("discord.js");
-const config = require("../configs/config.json");
-const guilds = require("../configs/guilds.json")
+const guilds = require("../data/guilds.json")
 
 module.exports.run = async (bot, message, args) => {
+    if (!(message.channel.type === "text")) return;
     console.log("kicking...");
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to kick without sufficient permissions!`); //check permission
@@ -41,5 +41,6 @@ module.exports.run = async (bot, message, args) => {
 module.exports.help = {
     name: "kick",
     usage: "kick <username> <reason>",
+    type: "Moderation",
     description: "Kicks the specified user, with an optional reason."
 }
