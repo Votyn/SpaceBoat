@@ -225,6 +225,10 @@ bot.on('ready', () => {
 });
 bot.on('message', message => {
     if (message.author.bot) return;
+    if (message.mentions.everyone) {
+        bot.utils.logChannel(bot, message.guild.id, 'PINGED.', message.author, '', `sent message: "${message}"`, '')
+    }
+    if (!(message.channel.type === "text")) return;
 
     let messageArray = message.content.split(/\s+/g);
     let command = messageArray[0];
