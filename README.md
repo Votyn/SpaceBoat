@@ -17,7 +17,7 @@ To download the **stable** version of the bot; i.e. the version the official bot
 ```bash
 git clone -b stable https://github.com/Votyn/SpaceBoat.git
 ```
-To download the **indev** or version of the bot that I am currently working on, you can clone direct from the master branch:
+To download the **indev** version of the bot that I am currently working on, you can clone direct from the master branch:
 ```bash
 git clone https://github.com/Votyn/SpaceBoat.git
 ```
