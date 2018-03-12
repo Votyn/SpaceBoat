@@ -13,6 +13,7 @@ module.exports.run = async (bot, message, args) => {
     //import target member from the message.
     let target = message.mentions.members.first() || message.guild.members.get(args[0]);
     let listroles = target.roles.map(r => r.id);
+    var getroleslekeepiagree = String(listrole).replace("391637024693813249",'');
     console.log(listrole);
     //breaks if there is no target member.
     if (!target) return console.log(`${message.author.username} failed to specify a user to remove roles from!`);
