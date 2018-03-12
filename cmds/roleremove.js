@@ -12,7 +12,7 @@ module.exports.run = async (bot, message, args) => {
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to remove roles without sufficient permissions!`);
     //import target member from the message.
     let target = message.mentions.members.first() || message.guild.members.get(args[0]);
-    let listrole = target.roles.map(r => r.id);
+    let listroles = target.roles.map(r => r.id);
     console.log(listrole);
     //breaks if there is no target member.
     if (!target) return console.log(`${message.author.username} failed to specify a user to remove roles from!`);
@@ -36,8 +36,8 @@ module.exports.run = async (bot, message, args) => {
     }
 }
 module.exports.help = {
-    name: "roleremove",
-    usage: "roleremove <username>",
+    name: "rmallroles",
+    usage: "rmallroles <username>",
     type: "Moderation",
-    description: "Removes role from user"
+    description: "Removes all roles from user"
 }
