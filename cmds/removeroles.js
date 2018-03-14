@@ -12,9 +12,10 @@ module.exports.run = async (bot, message, args) => {
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to remove roles without sufficient permissions!`);
     //import target member from the message.
     let target = message.mentions.members.first() || message.guild.members.get(args[0]);
+    // Get roles the user has
     let listroles = target.roles.map(r => r.id);
-    var getroleslekeepiagree = String(listrole).replace("391637024693813249",'');
-    console.log(listrole);
+    // Makes sure it doesn't delete the iagree role
+    var getroleslekeepiagree = String(listroles).replace("391637024693813249",'');
     //breaks if there is no target member.
     if (!target) return console.log(`${message.author.username} failed to specify a user to remove roles from!`);
     //checks if target is a moderator.
@@ -32,13 +33,17 @@ module.exports.run = async (bot, message, args) => {
         message.channel.send(`${target.user.username}'s roles have been removed`);
         //notify console.
         console.log(`${target.user.username}'s roles have been removed`);
-        //mute the target user.
-        await target.removeRoles(listrole, `Moderator: ${message.author.username}`).catch(err => { console.error(err) });
+        // Remove all roles from user
+        await target.removeRoles(listroles, `Moderator: ${message.author.username}`).catch(err => { console.error(err) });
+    }
+    // If there are arguments send that it doesn't take arguments
+    if (args[1]) {
+        message.channel.send(`This command does not take arguments`);
     }
 }
 module.exports.help = {
-    name: "rmallroles",
-    usage: "rmallroles <username>",
+    name: "removeroles",
+    usage: "removeroles <username>",
     type: "Moderation",
     description: "Removes all roles from user"
 }
