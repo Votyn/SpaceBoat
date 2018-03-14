@@ -22,18 +22,6 @@ module.exports.run = async (bot, message, args) => {
     }
     //searches for the role
     let role = message.guild.roles.find(r => r.name === "Muted");
-    //makes sure that the bot's highest role is above the muted role.
-    if (message.guild.me.highestRole.comparePositionTo(role) < 1) {
-        console.log(`ERROR: Cannot assign Muted role!`);
-        try {
-            logChannel.send(`ERROR: Cannot assign Muted role!`);
-        }
-        catch (error) {
-            console.log('No logchannel defined for this guild!');
-            (await message.channel.send('Please configure a logging channel!')).delete(10000);
-        }
-        return;
-    }
     //if no muted role exists, create it.
     if (!role) {
         try {
@@ -53,6 +41,18 @@ module.exports.run = async (bot, message, args) => {
         } catch (error) {
             console.log(error.stack);
         }
+    }
+    //makes sure that the bot's highest role is above the muted role.
+    if (message.guild.me.highestRole.comparePositionTo(role) < 1) {
+        console.log(`ERROR: Cannot assign Muted role!`);
+        try {
+            logChannel.send(`ERROR: Cannot assign Muted role!`);
+        }
+        catch (error) {
+            console.log('No logchannel defined for this guild!');
+            (await message.channel.send('Please configure a logging channel!')).delete(10000);
+        }
+        return;
     }
     //checks if member already muted.
     if (target.roles.has(role.id)) {
