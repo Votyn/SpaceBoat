@@ -13,8 +13,6 @@ module.exports.run = async (bot, message, args) => {
     let target = message.mentions.members.first() || message.guild.members.get(args[0]);
     // Get roles the user has
     let listroles = target.roles.map(r => r.id);
-    // Makes sure it doesn't delete the iagree role
-    var getroleslekeepiagree = String(listroles).replace("391637024693813249",'');
     //breaks if there is no target member.
     if (!target) return console.log(`${message.author.username} failed to specify a user to remove roles from!`);
     //checks if target is a moderator.
