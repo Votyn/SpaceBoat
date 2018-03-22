@@ -1,7 +1,6 @@
 const fs = module.require("fs");
 const Discord = module.require('discord.js');
 const guilds = require("../data/guilds.json");
-const mutes = require("../data/mutes.json");
 
 module.exports.run = async (bot, message, args) => {
     if (!(message.channel.type === "text")) return;
@@ -21,7 +20,7 @@ module.exports.run = async (bot, message, args) => {
     //checks if target is a moderator.
     if (target.hasPermission("MANAGE_MESSAGES")) {
         console.log(`Error: ${target.user.username} is a moderator.`);
-        await message.channel.send(`${target.user.username} is a moderator!`).delete(10000);
+        (await message.channel.send(`${target.user.username} is a moderator!`)).delete(10000);
         return;
     }
     //searches for the role;
@@ -38,8 +37,20 @@ module.exports.run = async (bot, message, args) => {
     }
     // If there are arguments send that it doesn't take arguments
     if (args[1]) {
-        message.channel.send(`This command does not take arguments`);
+        var reason = args.splice(1).join(' ')
+        if (reason) {
+            // notify logchannel
+            bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author, reason)
+            // remove roles from the the target user
+            await target.removeRoles(listroles, `Moderator: ${message.author.username}; Reason: ${reason}`).catch(err => { console.error(err) });
+        }
+        if (!reason) {
+            var reason = ''
+            //remove roles from the the target user
+             await target.removeRoles(listroles, `Moderator: ${message.author.username}`).catch(err => { console.error(err) });
+        }
     }
+    
 }
 module.exports.help = {
     name: "removeroles",
