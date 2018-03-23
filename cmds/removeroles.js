@@ -14,7 +14,10 @@ module.exports.run = async (bot, message, args) => {
     // Get roles the user has
     let listroles = target.roles.map(r => r.id);
     //breaks if there is no target member.
-    if (!target) return console.log(`${message.author.username} failed to specify a user to remove roles from!`);
+    if (!target) {
+        console.log(`${message.author.username} failed to specify a user to remove roles from!`    
+        return;
+    }
     //checks if target is a moderator.
     if (target.hasPermission("MANAGE_MESSAGES")) {
         console.log(`Error: ${target.user.username} is a moderator.`);
@@ -34,20 +37,16 @@ module.exports.run = async (bot, message, args) => {
         await target.removeRoles(listroles, `Moderator: ${message.author.username}`).catch(err => { console.error(err) });
     }
     // If there are arguments send that it doesn't take arguments
-    if (args[1]) {
-        var reason = args.splice(1).join(' ')
-        if (reason) {
-            // notify logchannel
-            bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author, reason)
-            // remove roles from the the target user
-            await target.removeRoles(listroles, `Moderator: ${message.author.username}; Reason: ${reason}`).catch(err => { console.error(err) });
-        }
-        if (!reason) {
-            var reason = ''
-            //remove roles from the the target user
-             await target.removeRoles(listroles, `Moderator: ${message.author.username}`).catch(err => { console.error(err) });
-        }
+
+    var reason = args.splice(1).join(' ')
+    if (reason) {
+        // notify logchannel
+        bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author, reason)
     }
+    if (!reason) {
+        var reason = ''
+    }
+ }
     
 }
 module.exports.help = {
