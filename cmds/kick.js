@@ -5,7 +5,7 @@ module.exports.run = async (bot, message, args) => {
     if (!(message.channel.type === "text")) return;
     console.log("kicking...");
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
-    if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to kick without sufficient permissions!`); //check permission
+    if (!message.member.hasPermission("KICK_MEMBERS")) return console.log(`${message.author.username} attempted to kick without sufficient permissions!`); //check permission
     let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
     if (!target) {
         console.log(`${message.author.username} failed to specify a target user!`);

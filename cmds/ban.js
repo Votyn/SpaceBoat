@@ -9,7 +9,7 @@ module.exports.run = async (bot, message, args) => {
     //load logChannel
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
     //can this user ban members?
-    if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to kick without sufficient permissions!`);
+    if (!message.member.hasPermission("BAN_MEMBERS")) return console.log(`${message.author.username} attempted to ban without sufficient permissions!`);
     //Get the mentioned member object
     let target = message.mentions.members.first() || message.guild.members.get(args[0]);
     //No member specified?
