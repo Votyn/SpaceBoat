@@ -1,6 +1,4 @@
 {
     "token": "",
-    "prefix": "=",
-    "dbusername": "root",
-    "dbpassword": "password"
+    "prefix": "="
 }

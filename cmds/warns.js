@@ -1,5 +1,6 @@
 const Discord = require('discord.js');
 const guilds = require("../data/guilds.json");
+const sqlite3 = require('sqlite3').verbose();
 
 module.exports.run = async (bot, message, args) => {
     //import logChannel.
@@ -16,7 +17,7 @@ module.exports.run = async (bot, message, args) => {
                       warn_str, 
                       severity, 
                       date 
-               FROM warns
+               FROM warnings
                ORDER BY warn_id`;
     let sql_all = `SELECT warn_id,
                           guild_id, 
