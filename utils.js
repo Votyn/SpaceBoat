@@ -50,8 +50,6 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, 
         else console.log(error)
     }
 }
-
-// stolen from RayzrDev SharpBot
 exports.randomSelection = (choices) => {
     return choices[Math.floor(Math.random() * choices.length)];
 }
