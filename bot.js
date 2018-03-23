@@ -1,5 +1,6 @@
 const Discord = module.require("discord.js");
 const fs = module.require("fs");
+const mysql = module.require("mysql");
 const config = require("./data/config.json");
 try {
     var mutes = require("./data/config.json");
@@ -223,6 +224,19 @@ bot.on('ready', () => {
         }, 30000);
     }
 });
+
+bot.db = global.db = mysql.createConnection({
+    host: "localhost",
+    user: config.dbusername,
+    password: config.dbpassword,
+    database: "SpaceBoat",
+});
+
+bot.db.connect(err =>{
+    if (err) throw err;
+    console.log(`Connected to database!`);
+});
+
 bot.on('message', message => {
     if (message.author.bot) return;
 
