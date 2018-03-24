@@ -1,5 +1,6 @@
 const Discord = module.require("discord.js");
 const fs = module.require("fs");
+const sqlite3 = require('sqlite3').verbose();
 const config = require("./data/config.json");
 try {
     var mutes = require("./data/config.json");
@@ -64,7 +65,6 @@ fs.readdir("./cmds/", (err, files) => {
         bot.commands.set(props.help.name, props);
     });
 });
-
 
 bot.on('ready', () => {
     console.log(`${bot.user.username} switched on.`);
@@ -223,6 +223,12 @@ bot.on('ready', () => {
         }, 30000);
     }
 });
+
+bot.db = global.db = new sqlite3.Database('./data/data.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
+    if (err) return console.error(err.message);
+    else console.log(`Connected to Database.`);
+})
+
 bot.on('message', message => {
     if (message.author.bot) return;
     if (message.mentions.everyone) {
@@ -337,7 +343,12 @@ bot.on('error', error => {
 bot.on('disconnect', event => {
     console.log(`Disconnected!\n${event.reason}`)
 });
-
+bot.on('destroy', () => {
+    bot.db.close((err) => {
+        if (err) return console.error(err.message);
+        else console.log('Closed database connection.');
+    });
+})
 bot.login(config.token)
     .then('Successful Login.')
     .catch(error => {

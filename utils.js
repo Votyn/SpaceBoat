@@ -7,9 +7,26 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, 
     if (!guildID) return console.log(`guildID is not defined!`);
     // identify the logger channel
     let logChannel = (bot.guilds.get(guildID)).channels.get(guilds[guildID].logChannelID)
+    // check if other supplied
+    if (!other || other == '') { var other = '' }    // check for a user parameter
+    if (user) { 
+        var userString = `**Target:** ${user} (${user.tag})`
+        var user_id = `ID: ${user.id}`
+        var icon = user.displayAvatarURL
+    }
+    if (!user || user == '') { 
+        var userString = ''
+        var user_id = ''
+    }
     // check if there is a moderator parameter
-    if (moderator) { var moderatorString = `\n**Moderator:** ${moderator} (${moderator.tag})` }
-    if (!moderator || moderator == '') { var moderatorString = '' }
+    if (moderator) { 
+        var moderatorString = `\n**Moderator:** ${moderator} (${moderator.tag})` 
+        if (!user) { var icon = moderator.user.displayAvatarURL }
+    }
+    if (!moderator || moderator == '') { 
+        var moderatorString = '' 
+        if (!user) { var icon = bot.displayAvatarURL }
+    }
     // check for reason
     if (reason) { var reasonString = `\n**Reason:** ${reason}` }
     if (!reason || reason == '') { var reasonString = '' }
@@ -37,11 +54,11 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, 
 exports.randomSelection = (choices) => {
     return choices[Math.floor(Math.random() * choices.length)];
 }
-exports.warning = async (bot, guildID, userID, moderatorID, string, severity) => {
+exports.warning = async (bot, guildID, userID, moderatorID, string, severity, callback) => {
     // create warnings table if it doesn't exist
     function createtable(cb) {
         db.run('CREATE TABLE IF NOT EXISTS warnings (warn_id integer PRIMARY KEY, guild_id integer, user_id integer, moderator_id integer, warn_str text, severity integer, date integer)', 
-        function (err) {
+        (err) => {
             if (err) {
                 cb(err.message)
             }
@@ -58,34 +75,23 @@ exports.warning = async (bot, guildID, userID, moderatorID, string, severity) =>
             [guildID, userID, moderatorID, string, severity, Date.now()], 
             function (err) {
             if (err) {
-                cb(err.message)
+                cb(err.message, null)
             }
             else {
                 console.log(`Warning insertion successful. Warning ID: ${this.lastID}`);
-                cb(null)
+                cb(null, this.lastID)
             }
         })
     }
-    // open database connection
-    var db = await new sqlite3.Database('./data/data.db', sqlite3.OPEN_CREATE | sqlite3.OPEN_READWRITE, (err) => {
-        if (err) return console.error(err.message);
-        else {
-            console.log('Connected to data.db');
-            createtable(function(err) {
-                if (err) return console.log(err);
-                insertwarning(guildID, userID, moderatorID, string, severity, function(err) {
-                    if (err) {
-                        console.log(err);
-                        return
-                    }
-                })
-            })
-        }
+    createtable((err) => {
+        if (err) return console.log(err);
+        insertwarning(guildID, userID, moderatorID, string, severity, (err, result) => {
+            if (err) {
+                console.log(err);
+                callback(err, null)
+                return
+            }
+            else callback(err, result)
+        })
     })
-    await db.close((err) => {
-        if (err) {
-            return console.error(err.message)
-        }
-        console.log('Closed database connection.');
-    });
 }

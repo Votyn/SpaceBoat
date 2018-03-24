@@ -5,11 +5,6 @@ const sqlite3 = require('sqlite3').verbose();
 module.exports.run = async (bot, message, args) => {
     //import logChannel.
     const logChannel = message.guild.channels.get(guilds[message.guild.id].logChannelID);
-
-    var db = await new sqlite3.Database('./data/data.db', (err) => {
-        if (err) return console.error(err.message);
-        else console.log('Connected to database.');
-    })
     let sql = `SELECT warn_id,
                       guild_id, 
                       user_id, 
@@ -43,29 +38,72 @@ module.exports.run = async (bot, message, args) => {
                     WHERE user_id = ?
                     ORDER BY warn_id`;
 
-    var embed = new Discord.RichEmbed().setTitle(`List of all warnings`);
-
-    db.serialize(() => {
-        var users = []
-        db.each(sql_users, [message.guild.id], (err, row) => {
-            if (err) throw err.message;
-            else users.push(row.user_id);
-            console.log(users)
-        }, () => {
-            users.forEach(userid => {
-                let warns = []
-                embed.addField(message.guild.members.get(userid))
-                db.each(sql_warn, [userid], (err, row) => {
-                    if (err) throw err.message;
-                    else {
-                        warns.push(row)
-                        console.log(warns)
-                    }
-                });
-                console.log(warns)
-            })
+    function getusers() {
+        return new Promise((resolve, reject) => {
+            db.all(sql_users, [message.guild.id], (err, rows) => {
+                if (err) return reject(err);
+                else {
+                    resolve(rows);
+                }
+            });
         });
+    }
+        
+    function getwarns(userid) {
+        return new Promise((resolve, reject) => {
+            db.all(sql_warn, [userid], (err, rows) => {  
+                if (err) reject(err);
+                else {
+                    resolve(rows);
+                }
+            });
+        })
+    }
+    let users = await getusers().catch(err => console.log(err))
+    var embeds = []
+    users.forEach(async user => {
+        let warns = await getwarns(user.user_id).catch(err => console.log(err))
+        //console.log(warns)
+        let target = message.guild.members.get(user.user_id);
+        let severities = []
+        var embed = new Discord.RichEmbed().setAuthor(target.user.username, target.user.displayAvatarURL)
+        warns.forEach(warn => {
+            severities.push(warn.severity)
+            embed.addField(`**Warn ID:** ${warn.warn_id}`, `\n**Severity:** ${warn.severity}\n**Mod:** ${message.guild.members.get(warn.moderator_id)}\n**Warning:** "${warn.warn_str}"\n`, true)
+            
+        })
+        let tally = severities.reduce((a, b) => { return a + b; }, 0)
+        console.log(tally);
+        embed.addField(`Warning Severity Tally`, tally);
+        embeds.push(embed)
     })
+    .then(() => {
+        console.log(embeds)
+        message.channel.send(embeds) // this is borked
+    })
+    
+
+    // db.serialize(() => {
+    //     var users = []
+    //     db.each(sql_users, [message.guild.id], (err, row) => {
+    //         if (err) throw err.message;
+    //         else users.push(row.user_id);
+    //         console.log(users)
+    //     }, () => {
+    //         users.forEach(userid => {
+    //             let warns = []
+    //             embed.addField(message.guild.members.get(userid))
+    //             db.each(sql_warn, [userid], (err, row) => {
+    //                 if (err) throw err.message;
+    //                 else {
+    //                     warns.push(row)
+    //                     console.log(warns)
+    //                 }
+    //             });
+    //             console.log(warns)
+    //         })
+    //     });
+    // })
 
     // getusers((err, userid) => {
     //     if (err) return console.log(err);
@@ -78,7 +116,6 @@ module.exports.run = async (bot, message, args) => {
     //     })
     // })
 
-    message.channel.send({ embed });
     // db.all(sql, [], (err, rows) => {
     //     if (err) {
     //         throw err;
@@ -157,10 +194,7 @@ module.exports.run = async (bot, message, args) => {
 
     //     }
     // })
-    db.close((err) => {
-        if (err) return console.error(err.message);
-        else console.log('Closed database connection.');
-    });
+    
 }
 
 module.exports.help = {
