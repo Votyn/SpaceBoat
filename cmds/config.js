@@ -4,7 +4,7 @@ const fs = module.require("fs");
 
 module.exports.run = async (bot, message, args) => {
     if (!(message.channel.type === "text")) return;
-    if (!message.member.hasPermission("MANAGE_SERVER")) return console.log(`${message.author.tag} attempted 'config' command with insufficient permissions.`);
+    if (!message.member.hasPermission("MANAGE_CHANNELS")) return console.log(`${message.author.tag} attempted 'config' command with insufficient permissions.`);
     if (args[0] == 'logchannel') {
         guilds[message.channel.guild.id].logChannelID = message.channel.id
         fs.writeFile("./data/guilds.json", JSON.stringify(guilds, null, 4), err => {
