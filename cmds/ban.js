@@ -99,28 +99,44 @@ module.exports.run = async (bot, message, args) => {
             fs.writeFileSync("./data/bans.json", JSON.stringify(bans, null, 4), err => {
                 if (err) throw err;
             });
-            //notify logchannel.
-            let timeString = `\n**Time:** ${banPeriod} ${clock}${s}`
-            bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason, timeString)
+            await bot.utils.warning(bot, message.guild.id, target.id, message.author.id, `**Ban:** ${reason}`, 10, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return message.channel.send(`Oops! I didn't manage to correctly log this.`);
+                }
+                else {
+                    // notify channel
+                    message.channel.send(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`);
+                    // notify logchannel
+                    var timeString = `\n**Time:** ${banPeriod} ${clock}${s}`
+                    bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason, timeString, `\n**Warn ID:** ${result}`);
+                }
+            })
             //notify console
             console.log(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`);
-            //notifychannel.
-            (await message.channel.send(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`)).delete(20000);
         }
 
         else {
-            //notify log
             var reason = args.splice(1).join(' ')
-            bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason)
             //notify user
             target.send(`**You have been banned for the following reason:** ${reason}`)
                 .catch(console.error);
             //ban.
             target.ban(`Moderator: ${message.author.username}; Reason: ${reason}`)
+            await bot.utils.warning(bot, message.guild.id, target.id, message.author.id, `**Ban:** ${reason}`, 10, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return message.channel.send(`Oops! I didn't manage to correctly log this.`);
+                }
+                else {
+                    // notify channel
+                    message.channel.send(`${target.user.username} has been banned`);
+                    // notify logchannel
+                    bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+                }
+            })
             //notify console
             console.log(`${target.user.username} has been banned.`);
-            //notifychannel.
-            (await message.channel.send(`${target.user.username} has been banned.`)).delete(20000);
         }
     }
     return;

@@ -27,13 +27,23 @@ module.exports.run = async (bot, message, args) => {
     if (reason) {
         // notify user
         target.send(`**You have been kicked for the following reason:** ${reason}`)
-            .catch(console.error);
-        // kick
-        target.kick(`Moderator: ${message.author.username}. Reason: ${reason}`);
-        // notify channel
-        await message.channel.send(`${target.user.username} kicked!`);
-        // notify logchannel
-        bot.utils.logChannel(bot, message.guild.id, `Member kicked!`, target.user, message.author, reason)
+            .catch(console.error)
+            .then(() => {
+                // kick
+                target.kick(`Moderator: ${message.author.username}. Reason: ${reason}`);
+            })
+        await bot.utils.warning(bot, message.guild.id, target.id, message.author.id, `**Kick:** ${reason}`, 5, (err, result) => {
+            if (err) {
+                console.log(err);
+                return message.channel.send(`Oops! I didn't manage to correctly log this.`);
+            }
+            else {
+                // notify channel
+                message.channel.send(`${target.user.username} kicked!`); 
+                // notify logchannel
+                bot.utils.logChannel(bot, message.guild.id, `Member kicked!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+            }
+        })
     }
     return;
 }

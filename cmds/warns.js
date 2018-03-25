@@ -38,6 +38,10 @@ module.exports.run = async (bot, message, args) => {
                     WHERE user_id = ?
                     ORDER BY warn_id`;
 
+    let sql_warnid = `SELECT warn_id
+                      FROM warnings
+                      WHERE warn_id = ?`;
+
     function getusers() {
         return new Promise((resolve, reject) => {
             db.all(sql_users, [message.guild.id], (err, rows) => {
@@ -48,10 +52,12 @@ module.exports.run = async (bot, message, args) => {
             });
         });
     }
-        
+
+    let users = await getusers().catch(err => console.log(err))
+
     function getwarns(userid) {
         return new Promise((resolve, reject) => {
-            db.all(sql_warn, [userid], (err, rows) => {  
+            db.all(sql_warn, [userid], (err, rows) => {
                 if (err) reject(err);
                 else {
                     resolve(rows);
@@ -59,142 +65,216 @@ module.exports.run = async (bot, message, args) => {
             });
         })
     }
-    let users = await getusers().catch(err => console.log(err))
-    var embeds = []
-    users.forEach(async user => {
-        let warns = await getwarns(user.user_id).catch(err => console.log(err))
-        //console.log(warns)
-        let target = message.guild.members.get(user.user_id);
+
+    function checkwarnid(warnid) {
+        return new Promise((resolve, reject) => {
+            db.all(sql_warnid, [warnid], (err, row) => {
+                if (err) reject(err);
+                else {
+                    resolve(row);
+                }
+            });
+        });
+    }
+
+    function gettally(warns) {
         let severities = []
-        var embed = new Discord.RichEmbed().setAuthor(target.user.username, target.user.displayAvatarURL)
-        warns.forEach(warn => {
-            severities.push(warn.severity)
-            embed.addField(`**Warn ID:** ${warn.warn_id}`, `\n**Severity:** ${warn.severity}\n**Mod:** ${message.guild.members.get(warn.moderator_id)}\n**Warning:** "${warn.warn_str}"\n`, true)
-            
-        })
-        let tally = severities.reduce((a, b) => { return a + b; }, 0)
-        console.log(tally);
-        embed.addField(`Warning Severity Tally`, tally);
-        embeds.push(embed)
-    })
-    .then(() => {
-        console.log(embeds)
-        message.channel.send(embeds) // this is borked
-    })
-    
+        warns.forEach(warn => { severities.push(warn.severity) });
+        let tally = severities.reduce((a, b) => { return a + b; }, 0);
+        return tally;
+    }
 
-    // db.serialize(() => {
-    //     var users = []
-    //     db.each(sql_users, [message.guild.id], (err, row) => {
-    //         if (err) throw err.message;
-    //         else users.push(row.user_id);
-    //         console.log(users)
-    //     }, () => {
-    //         users.forEach(userid => {
-    //             let warns = []
-    //             embed.addField(message.guild.members.get(userid))
-    //             db.each(sql_warn, [userid], (err, row) => {
-    //                 if (err) throw err.message;
-    //                 else {
-    //                     warns.push(row)
-    //                     console.log(warns)
-    //                 }
-    //             });
-    //             console.log(warns)
-    //         })
-    //     });
-    // })
+    if (message.channel.id === guilds[message.guild.id].adminbotChannelID) {
+        if (!args[0]) { // Sends an embed with a summarized report for all warned users in a guild.
+            let embed = new Discord.RichEmbed({ title: "List of warned users" })
+            for (let user of users) {
+                let warns = await getwarns(user.user_id).catch(err => console.log(err))
+                let previouswarn = warns.slice(-1)[0]
+                let date = new Date(previouswarn.date)
+                date = date.toDateString()
+                let target
+                try { target = (message.guild.members.get(user.user_id)).user.tag }
+                catch (error) { console.log(error.message) }
+                finally { if (!target) { target = user.user_id } }
+                embed.addField(target, `**Warn Severity Tally:** ${gettally(warns)}\n**Most Recent Warning:** (id: ${previouswarn.warn_id})\n**Severity:** ${previouswarn.severity}\n**Warning:** "${previouswarn.warn_str}"\n**Mod:** ${message.guild.members.get(previouswarn.moderator_id)}\n**Date:** ${date}`, true)
+            }
+            message.channel.send({ embed })
+        }
+        else if (args[0] == 'full') { // Sends an embed with all warnings for each warned user in the guild.
+            for (let user of users) {
+                let warns = await getwarns(user.user_id).catch(err => console.log(err))
+                var embed = new Discord.RichEmbed()
+                let target
+                try { target = message.guild.members.get(user.user_id) }
+                catch (error) { console.log(error.message) }
+                finally {
+                    if (!target) { embed.setAuthor(user.user_id) }
+                    else { embed.setAuthor(target.user.username, target.user.displayAvatarURL) }
+                }
+                embed.setDescription(`Warning Severity Tally: ${gettally(warns)}`);
+                for (let warn of warns) {
+                    let date = (new Date(warn.date)).toDateString()
+                    embed.addField(`**Warn ID:** ${warn.warn_id}`, `\n**Severity:** ${warn.severity}\n**Mod:** ${message.guild.members.get(warn.moderator_id)}\n**Warning:** "${warn.warn_str}"\n**Date:** ${date}\n`, true)
+                }
+                message.channel.send({ embed })
+            }
+        }
+        else if (args[0] == 'config') {
+            if (args[1] == 'severity') {
+                let warn = await checkwarnid(args[2])
+                if (warn == []) {
+                    let response = bot.utils.randomSelection([
+                        `Which warn id do you want me to configure?`,
+                        `That's not a valid warn id...`,
+                        `Please can you state which warn id you want configured?`
+                    ]);
+                    return message.channel.send(response);
+                }
+                else {
+                    if (args[3] && !isNaN(args[3]) && args[3] > 0 && args[3] < 11) {
+                        db.run(`UPDATE warnings
+                                SET severity = ?
+                                WHERE warn_id = ?`,
+                            [args[3], args[2]], err => { if (err) console.log(err) })
+                        return message.channel.send(`Severity updated!`);
+                    }
+                    else {
+                        let response = bot.utils.randomSelection([
+                            `That isn't a valid severity value.`,
+                            `Can you make sure that severity value is a number between 1 and 10 please?`
+                        ]);
+                        return message.channel.send(response);
+                    }
+                }
+            }
+            else if (args[1] == 'warning') {
+                let warn = await checkwarnid(args[2])
+                if (warn == []) {
+                    let response = bot.utils.randomSelection([
+                        `Which warn id do you want me to configure?`,
+                        `That's not a valid warn id...`,
+                        `Please can you state which warn id you want configured?`
+                    ]);
+                    return message.channel.send(response);
+                }
+                else {
+                    if (args[2] == `warning`) {
+                        if (args[3]) {
+                            db.run(`UPDATE warnings
+                                    SET warn_str = ?
+                                    WHERE warn_id = ?`,
+                                [args[3], `${args[1]}`], err => { if (err) console.log(err) })
+                            return message.channel.send(`Warning text updated!`);
+                        }
+                        else {
+                            let response = bot.utils.randomSelection([
+                                `Please can you supply a warning string?`,
+                                `Please input what you want to change the warning to.`
+                            ]);
+                            return message.channel.send(response);
+                        }
+                    }
+                }
+            }
+            let warn = await checkwarnid(args[1])
+            if (warn != []) {
+                if (args[2] == `severity`) {
+                    if (args[3] && !isNaN(args[3]) && args[3] > 0 && args[3] < 11) {
+                        db.run(`UPDATE warnings
+                                SET severity = ?
+                                WHERE warn_id = ?`,
+                            [args[3], args[1]], err => { if (err) console.log(err) })
+                        return message.channel.send(`Severity updated!`);
+                    }
+                    else {
+                        let response = bot.utils.randomSelection([
+                            `That isn't a valid severity value.`,
+                            `Can you make sure that severity value is a number between 1 and 10 please?`
+                        ]);
+                        return message.channel.send(response);
+                    }
+                }
+                else if (args[2] == `warning`) {
+                    if (args[3]) {
+                        db.run(`UPDATE warnings
+                                SET warn_str = ?
+                                WHERE warn_id = ?`,
+                            [args[3], `${args[1]}`], err => { if (err) console.log(err) })
+                        return message.channel.send(`Warning text updated!`);
+                    }
+                    else {
+                        let response = bot.utils.randomSelection([
+                            `Please can you supply a warning string?`,
+                            `Please input what you want to change the warning to.`
+                        ]);
+                        return message.channel.send(response);
+                    }
+                }
+                else {
+                    let response = bot.utils.randomSelection([
+                        `That's not a valid configuration parameter`,
+                        "Please can you state whether you want to configure the `severity` or the `warning` text of the warning?"
+                    ]);
+                    return message.channel.send(response);
+                }
+            }
+            else {
+                let response = bot.utils.randomSelection([
+                    `Errrr I don't know what to do with this...`,
+                    `Erm... Not sure how to handle this...`,
+                    `That's not really how this command is meant to be used...`,
+                    `Please can you include the warning id what you want to change and what parameter (severity or warning text) you want to change.`
+                ]);
+                return message.channel.send(response);
+            }
+        }
+        else if (args[0] == `remove` || args[0] == `delete` || args[0] == `del` || args[0] == `rm`) {
+            let warn = await checkwarnid(args[1])
+            if (warn == []) {
+                let response = bot.utils.randomSelection([
+                    `Which warn id do you want me to remove?`,
+                    `That's not a valid warn id...`,
+                    `Please can you state which warn id you want removed?`
+                ]);
+                return message.channel.send(response);
+            }
+            else {
+                await db.run(`DELETE FROM warnings WHERE warn_id = ?`, args[1], err => { if (err) console.log(err) });
+                let response = bot.utils.randomSelection([
+                    `Done and dusted! :D`,
+                    `Warning removed.`,
+                    `Done. :)`
+                ]);
+                return message.channel.send(response);
+            }
+        }
+        else {
+            let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
+            if (target) {
+                let warns = await getwarns(target.id).catch(err => console.log(err))
+                var embed = new Discord.RichEmbed().setAuthor(target.user.username, target.user.displayAvatarURL)
+                embed.setDescription(`Warning Severity Tally: ${gettally(warns)}`);
+                for (let warn of warns) {
+                    let date = (new Date(warn.date)).toDateString()
+                    embed.addField(`**Warn ID:** ${warn.warn_id}`, `\n**Severity:** ${warn.severity}\n**Mod:** ${message.guild.members.get(warn.moderator_id)}\n**Warning:** "${warn.warn_str}"\n**Date:** ${date}\n`, true)
+                }
+                message.channel.send({ embed })
+            }
+            else {
+                let warns = await getwarns(args[0]).catch(err => console.log(err))
+                if (warns != []) {
+                    var embed = new Discord.RichEmbed().setAuthor(args[0])
+                    embed.setDescription(`Warning Severity Tally: ${gettally(warns)}`);
+                    for (let warn of warns) {
+                        let date = (new Date(warn.date)).toDateString()
+                        embed.addField(`**Warn ID:** ${warn.warn_id}`, `\n**Severity:** ${warn.severity}\n**Mod:** ${message.guild.members.get(warn.moderator_id)}\n**Warning:** "${warn.warn_str}"\n**Date:** ${date}\n`, true)
+                    }
+                    message.channel.send({ embed })
+                }
+            }
+        }
 
-    // getusers((err, userid) => {
-    //     if (err) return console.log(err);
-    //     console.log(userid)
-    //     getwarns(userid, (err, rows) => {
-    //         if (err) {
-    //             console.log(err);
-    //             return
-    //         }
-    //     })
-    // })
-
-    // db.all(sql, [], (err, rows) => {
-    //     if (err) {
-    //         throw err;
-    //     }
-    //     return
-    //     //don't forget to make sure that the guilds remain seperate...
-    //     console.log(rows)
-    //     console.log(rows[0].warn_id)
-    //     let embed = new Discord.RichEmbed().setTitle(`List of all warnings`);
-    //     Object.keys(rows).forEach(key => {
-    //         let warn = rows[key]
-    //         console.log(warn)
-    //         let userID = warn[2]
-    //         console.log(userID)
-    //         console.log(message.guild.members.get(userID))
-    //         let previous_warn = rows[key - 1]
-    //         if (previous_warn && previous_warn.user_id === warn.user_id) {
-    //             let field = `**Mod:** ${message.guild.members.get(`${warn.moderator_id}`)}\n**Severity:** ${warn.severity}\n**String:** "${warn.warn_str}"\n`
-    //             embed.addField(`Warn ID: ${warn.warn_id}`, field, true)
-    //         }
-    //         else {
-    //             let user = message.guild.members.get(`${warn.user_id}`)
-    //             embed.addField(`member`, `Warning Tally: 2`)
-    //             let field = `**Mod:** ${message.guild.members.get(`${warn.moderator_id}`)}\n**Severity:** ${warn.severity}\n**String:** "${warn.warn_str}"\n`
-    //             embed.addField(`Warn ID: ${warn.warn_id}`, field, true)
-    //         }
-    //     });
-    //     message.channel.send( {embed} )
-
-    //     if (message.channel.id === guilds[message.guild.id].adminbotChannelID) {
-    //         if (!args[0]) {
-
-    //         }
-    //         else if (args[0] == 'config') {
-    //             if (!args[1]) {
-    //                 let message = bot.utils.randomSelection([
-    //                     `Please supply a user id to configure`,
-    //                     `Config what??`,
-    //                     `You didn't supply a user id...`
-    //                 ]);
-    //                 message.channel.send(message);
-    //                 return;
-    //             }
-    //             else if (isNaN(args[1])) {
-    //                 let message = bot.utils.randomSelection([
-    //                     `Please supply a user id to configure`,
-    //                     `That doesn't look like a user id. To get the user id it can either be found in the list of all warnings, or via enabling developer tools and right clicking the target user's username and pressing "copy id".`,
-    //                     `You didn't supply a user id...`
-    //                 ]);
-    //                 message.channel.send(message);
-    //                 return;
-    //             }
-    //             let target = message.channel.guild.members.get(args[1])
-    //             if (!target) {
-    //                 message.channel.send(`The stated user is not a member of this guild...`)
-    //             }
-    //             else if (args[2] == 'severity') {
-
-    //             }
-    //             else if (args[2] == 'message') {
-
-    //             }
-    //             //this needs to be changed to accomodate a warning id...
-    //             else {
-    //                 let message = bot.utils.randomSelection([
-    //                     "Please select between `severity` or `message` to configure for this user.",
-    //                     "Are you configuring `severity` or `message` for this warning?"
-    //                 ]);
-    //                 message.channel.send(message);
-    //                 return;
-    //             }
-    //         }
-    //         else if (!isNaN(args[0])) {
-    //             //show warns for this user
-    //         }
-
-    //     }
-    // })
-    
+    }
 }
 
 module.exports.help = {

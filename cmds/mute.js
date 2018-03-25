@@ -150,28 +150,46 @@ module.exports.run = async (bot, message, args) => {
             fs.writeFileSync("./data/mutes.json", JSON.stringify(mutes, null, 4), err => {
                 if (err) throw err;
             });
-            //notify logchannel.
-            var timeString = `\n**Time:** ${muteLength} ${clock}${s}`
-            bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason, timeString)
+            //log as warning.
+            await bot.utils.warning(bot, message.guild.id, target.id, message.author.id, `**Mute:** ${reason}`, 3, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return message.channel.send(`Oops! I didn't manage to correctly log this.`);
+                }
+                else {
+                    // notify channel
+                    message.channel.send(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
+                    // notify logchannel
+                    var timeString = `\n**Time:** ${muteLength} ${clock}${s}`
+                    bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason, timeString, `\n**Warn ID:** ${result}`);
+                }
+            })
             //notify console
             console.log(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
-            //notifychannel.
-            await message.channel.send(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
         }
 
         else {
-            //notify log
-            var reason = args.splice(1).join(' ')
-            bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason)
+            let reason = args.splice(1).join(' ')
             //notify user
             target.send(`**You have been muted for the following reason:** ${reason}`)
                 .catch(console.error);
             //apply the muted role.
             await target.addRole(role, `Moderator: ${message.author.username}. Reason: ${reason}`).catch(err => { console.error(err) });
+            //log as warning.
+            await bot.utils.warning(bot, message.guild.id, target.id, message.author.id, `**Mute:** ${reason}`, 3, (err, result) => {
+                if (err) {
+                    console.log(err);
+                    return message.channel.send(`Oops! I didn't manage to correctly log this.`);
+                }
+                else {
+                    // notify channel
+                    message.channel.send(`${target.user.username} has been muted`);
+                    // notify logchannel
+                    bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+                }
+            })
             //notify console
             console.log(`${target.user.username} has been muted.`);
-            //notifychannel.
-            await message.channel.send(`${target.user.username} has been muted.`);
         }
     }
     return;
