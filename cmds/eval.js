@@ -1,6 +1,6 @@
 const inspect = require('util').inspect;
 const Discord = require('discord.js');
-
+const config = require("../data/config.json")
 const clean = input => {
     const output = typeof input === 'string' ? input : inspect(input);
     return output.replace(/(@|`)/g, '$1\u200b');
@@ -8,7 +8,7 @@ const clean = input => {
 
 module.exports.run = async (bot, message, args) => {
     //only I can use this command!
-    if (message.author.id != 166125035092836352) return;
+    if (message.author.id != config.ownerid) return;
 
     const input = args.join(' ');
     if (!input) {

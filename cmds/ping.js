@@ -1,5 +1,6 @@
+const config = require("../data/config.json")
 module.exports.run = async (bot, message, args) => {
-    if (message.author.id == 166125035092836352) {
+    if (message.author.id == config.ownerid) {
         const m = await message.channel.send('Pong!');
         m.edit(`:ping_pong: Pong! \`${m.createdTimestamp - message.createdTimestamp}ms\``);
     }
