@@ -66,10 +66,6 @@ bcrypt-pbkdf@^1.0.0:
   dependencies:
     tweetnacl "^0.14.3"
 
-bindings@^1.2.1:
-  version "1.3.0"
-  resolved "https://registry.yarnpkg.com/bindings/-/bindings-1.3.0.tgz#b346f6ecf6a95f5a815c5839fc7cdb22502f1ed7"
-
 block-stream@*:
   version "0.0.9"
   resolved "https://registry.yarnpkg.com/block-stream/-/block-stream-0.0.9.tgz#13ebfe778a03205cfe03751481ebb4b3300c126a"
@@ -259,13 +255,6 @@ ecc-jsbn@~0.1.1:
 entities@^1.1.1, entities@~1.1.1:
   version "1.1.1"
   resolved "https://registry.yarnpkg.com/entities/-/entities-1.1.1.tgz#6e5c2d0a5621b5dadaecef80b90edfb5cd7772f0"
-
-erlpack@^0.1.2:
-  version "0.1.2"
-  resolved "https://registry.yarnpkg.com/erlpack/-/erlpack-0.1.2.tgz#cf1f4f755d0728ebc2d11b2e3c92bd2da834514e"
-  dependencies:
-    bindings "^1.2.1"
-    nan "^2.1.0"
 
 extend@~3.0.0:
   version "3.0.1"
@@ -578,10 +567,6 @@ minimist@^1.2.0:
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
-
-nan@^2.1.0:
-  version "2.10.0"
-  resolved "https://registry.yarnpkg.com/nan/-/nan-2.10.0.tgz#96d0cd610ebd58d4b4de9cc0c6828cda99c7548f"
 
 nan@~2.7.0:
   version "2.7.0"
@@ -914,9 +899,9 @@ verror@1.10.0:
     core-util-is "1.0.2"
     extsprintf "^1.2.0"
 
-webdict@^0.2.1:
-  version "0.2.1"
-  resolved "https://registry.yarnpkg.com/webdict/-/webdict-0.2.1.tgz#41836d31cf0dea013542f1c199bd60f4ce35da46"
+webdict@^0.2.2:
+  version "0.2.2"
+  resolved "https://registry.yarnpkg.com/webdict/-/webdict-0.2.2.tgz#dc44c63995dce77568007752ab755fa10089296e"
   dependencies:
     cheerio "^0.22.0"
     got "^6.7.1"
