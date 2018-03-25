@@ -15,7 +15,7 @@ module.exports.run = async (bot, message, args) => {
     let listroles = target.roles.map(r => r.id);
     // breaks if there is no target member.
     if (!target) {
-        console.log(`${message.author.username} failed to specify a user to remove roles from!`    
+        console.log(`${message.author.username} failed to specify a user to remove roles from!`)    
         return;
     }
     // checks if target is a moderator.
