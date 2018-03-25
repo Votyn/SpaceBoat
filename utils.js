@@ -57,7 +57,14 @@ exports.randomSelection = (choices) => {
 exports.warning = async (bot, guildID, userID, moderatorID, string, severity, callback) => {
     // create warnings table if it doesn't exist
     function createtable(cb) {
-        db.run('CREATE TABLE IF NOT EXISTS warnings (warn_id integer PRIMARY KEY, guild_id integer, user_id integer, moderator_id integer, warn_str text, severity integer, date integer)', 
+        db.run(`CREATE TABLE IF NOT EXISTS warnings 
+        (warn_id integer PRIMARY KEY, 
+            guild_id text, 
+            user_id text, 
+            moderator_id text, 
+            warn_str text, 
+            severity integer, 
+            date integer)`, 
         (err) => {
             if (err) {
                 cb(err.message)
