@@ -11,13 +11,13 @@ module.exports.run = async (bot, message, args) => {
     if (!message.member.hasPermission("MANAGE_MESSAGES")) return console.log(`${message.author.username} attempted to remove roles without sufficient permissions!`);
     //import target member from the message.
     let target = message.mentions.members.first() || message.guild.members.get(args[0]);
-    // Get roles the user has
-    let listroles = target.roles.map(r => r.id);
     // breaks if there is no target member.
     if (!target) {
         console.log(`${message.author.username} failed to specify a user to remove roles from!`)    
         return;
     }
+    // Get roles the user has
+    let listroles = target.roles.map(r => r.id);
     // checks if target is a moderator.
     if (target.hasPermission("MANAGE_MESSAGES")) {
         console.log(`Error: ${target.user.username} is a moderator.`);
@@ -30,15 +30,35 @@ module.exports.run = async (bot, message, args) => {
         // notify logchannel.
         bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author)
         // notify channel
-        message.channel.send(`${target.user.username}'s roles have been removed`);
+        message.channel.send(`${target.user.username}'s roles have been removed.`);
         // notify console.
-        console.log(`${target.user.username}'s roles have been removed`);
+        console.log(`${target.user.username}'s roles have been removed.`);
         // remove all roles from user
-        await target.removeRoles(listroles, `Moderator: ${message.author.username}`).catch(err => { console.error(err) });
+        await target.removeRoles(listroles, `Moderator: ${message.author.username}`).catch(err => { return console.error(err) });
     }
     else {
-        var reason = args.splice(1).join(' ')
-        bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author, reason)
+        let reason = args.splice(1).join(' ')
+        target.send(`**You have received a warning:** ${reason}`)
+            .catch(console.error)
+            .then(() => {
+                // remove roles
+                target.removeRoles(listroles, `Moderator: ${message.author.username}`).catch(err => { return console.error(err) });
+            })
+        await bot.utils.warning(bot, message.guild.id, target.id, message.author.id, `**Roles removed:** ${reason}`, 2, (err, result) => {
+            if (err) {
+                console.log(err);
+                return message.channel.send(`Oops! I didn't manage to correctly log this.`);
+            }
+            else {
+                // notify channel
+                message.channel.send(`${target.user.username}'s roles have been removed.`); 
+                // notify logchannel
+                bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+            }
+        })
+        
+        // notify console.
+        console.log(`${target.user.username}'s roles have been removed.`);
     }
 }
 module.exports.help = {
