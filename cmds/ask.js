@@ -88,7 +88,7 @@ module.exports.run = (bot, message, args) => {
                     `I don't think so...`,
                     `Maybe...`,
                     `I'm not sure.`,
-                    `Why would you ask that? :rauf:`,
+                    `Why would you ask that? <:rauf:427621360286826496>`,
                     `I hope not!`,
                     `I hope so...`,
                     `Well now that you ask...`,
