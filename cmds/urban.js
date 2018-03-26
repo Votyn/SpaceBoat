@@ -23,11 +23,11 @@ module.exports.run = async (bot, message, args) => {
                     `Not here!`,
                     `That doesn't appear to have an urban definition. Why don't you add one?`,
                     `I can't find a definition for this.`,
-                    `Doesn't appear to be here. Why don't you say what it might be? That's basically what the urban dictionary is <:tearthonk:383856193073840129>`,
-                    `<:rauf:383848644413095937>`,
-                    `<:tearthonk:383856193073840129>`,
-                    `<:sweats:370656909134659604>`,
-                    `<a:gone:393837219854680066>`
+                    `Doesn't appear to be here. Why don't you say what it might be? That's basically what the urban dictionary is <:tearthonk:427621281525923842>`,
+                    `<:rauf:427621360286826496>`,
+                    `<:tearthonk:427621281525923842>`,
+                    `<:sweats:427623000087592965>`,
+                    `<a:gone:427621026957099009>`
                 ]);
                 message.channel.send(response);
             })
