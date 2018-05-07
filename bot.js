@@ -298,6 +298,37 @@ bot.on('guildCreate', guild => {
     console.log(`Joined new server! Please set up Channel IDs.`)
 });
 
+bot.on('messageDelete', message => {
+    if (!message.guild || !message.guild.channels || (!message.cleanContent && !message.attachments.first())) {
+        return;
+    };
+
+    let channel = message.guild.channels.find(c => c.name === "adminlog");
+    if (!channel) return;
+
+    let embed = new Discord.RichEmbed()
+                .setTitle('Message Deleted!')
+                .setDescription(`\`\`\`\n${(message.cleanContent).substr(0, 1950)}\n\`\`\``)
+                .addField('Channel', `${message.channel}`)
+                .setColor('red')
+                .setTimestamp(new Date())
+                .setFooter(`Author: @${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
+
+    if (message.attachments.size > 0) {
+        const attachment = message.attachments.first();
+        if (attachment.width) {
+            embed.setImage(attachment.url);
+        } else {
+            embed.attachFile(attachment.url);
+        }
+        if (message.cleanContent) {
+            embed.setDescription(`\`\`\`\n${(message.cleanContent).substr(0, 1950)}\n\`\`\`\n[File](${attachment.url})`)
+        } else embed.setDescription(`[File](${attachment.url})`);
+    } else if (message.cleanContent) embed.setDescription(`\`\`\`\n${(message.cleanContent).substr(0, 1750)}\n\`\`\``);
+
+    channel.send({ embed });
+});
+
 // please fix: the below will activate even if user has been banned by bot. Will result in multiple logs.
 
 // bot.on('guildBanAdd', guild, user => {
