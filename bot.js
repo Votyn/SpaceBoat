@@ -328,16 +328,6 @@ bot.on('messageDelete', message => {
 
     channel.send({ embed });
 });
-
-bot.on('messageReactionAdd', (reaction, user) => {
-    if (reaction.message.id != '' || reaction.emoji.id != '') return;
-    let guild = reaction.message.guild
-    let member = guild.member(user)
-    let role = guild.roles.find(r => r.name === "Observer");
-    if (!role) return console.log('"Observer" Role not found!');
-    member.addRole(role).catch(err => console.log(err))
-});
-
 // please fix: the below will activate even if user has been banned by bot. Will result in multiple logs.
 
 // bot.on('guildBanAdd', guild, user => {
