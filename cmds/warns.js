@@ -86,7 +86,7 @@ module.exports.run = async (bot, message, args) => {
 
     if (message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         if (!args[0]) { // Sends an embed with a summarized report for all warned users in a guild.
-            let embed = new Discord.RichEmbed({ title: "List of warned users" })
+            let embed = new Discord.RichEmbed({ title: "List of warned users", description: "_ _" })
             for (let user of users) {
                 let warns = await getwarns(user.user_id).catch(err => console.log(err))
                 let previouswarn = warns.slice(-1)[0]
@@ -96,7 +96,7 @@ module.exports.run = async (bot, message, args) => {
                 try { target = (message.guild.members.get(user.user_id)).user.tag }
                 catch (error) { console.log(error.message) }
                 finally { if (!target) { target = user.user_id } }
-                embed.addField(target, `**Warn Severity Tally:** ${gettally(warns)}\n**Most Recent Warning:** (id: ${previouswarn.warn_id})\n**Severity:** ${previouswarn.severity}\n**Warning:** "${previouswarn.warn_str}"\n**Mod:** ${message.guild.members.get(previouswarn.moderator_id)}\n**Date:** ${date}`, true)
+                embed.addField(target, `**Warn Severity Tally:** ${gettally(warns)}\n**Most Recent Warning:** (id: ${previouswarn.warn_id})\n**Severity:** ${previouswarn.severity}\n**Warning:** "${previouswarn.warn_str}"\n**Mod:** ${message.guild.members.get(previouswarn.moderator_id)}\n**Date:** ${date}\n_ _`, true)
             }
             message.channel.send({ embed })
         }
