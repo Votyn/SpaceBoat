@@ -15,11 +15,11 @@ This bot requires [node.js](https://nodejs.org/en/download/), [git](https://git-
 
 To download the **stable** version of the bot; i.e. the version the official bot is running, run the following in a terminal:
 ```bash
-git clone -b stable https://github.com/Votyn/SpaceBoat.git
-```
-To download the **indev** version of the bot that I am currently working on, you can clone direct from the master branch:
-```bash
 git clone https://github.com/Votyn/SpaceBoat.git
+```
+To download the **indev** version of the bot that I am currently working on, you have to clone from the `dev` branch:
+```bash
+git clone -b dev https://github.com/Votyn/SpaceBoat.git
 ```
 Having downloaded the bot, download the node dependencies:
 ```bash
