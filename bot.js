@@ -331,7 +331,7 @@ bot.on('messageDelete', message => {
 
 bot.on('messageDeleteBulk', messages => {
 
-    messages.forEach(message => {
+    messages.tap(message => {
         if (!message.guild || !message.guild.channels || (!message.cleanContent && !message.attachments.first())) {
             return;
         };
