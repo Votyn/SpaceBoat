@@ -4,11 +4,11 @@ module.exports.run = async (bot, message, args) => {
 
     let count = parseInt(args[0]) || 1; // How many messages to delete?
 
-    message.channel.bulkDelete(count) // Delete the messages
-        .then(messages => message.channel.send(`:white_check_mark: Purged \`${messages.size}\` message${messages.size === 1 ? '' : 's'}.`)) // Notify success.
+    message.channel.bulkDelete(count + 1) // Delete the messages
+        .then(deleted => message.channel.send(`:white_check_mark: Purged \`${deleted.size-1}\` message${(deleted.size-1) === 1 ? '' : 's'}.`).then(msg => msg.delete(2000))) // Notify success.
         .catch(error => {
                     if (error.message === 'You can only bulk delete messages that are under 14 days old.') {
-                        message.channel.send(`:interrobang: Can't bulk delete messages older than 2 weeks!`)
+                        message.channel.send(`:interrobang: Can't bulk delete messages older than 2 weeks!`).then(msg => msg.delete(2000))
                     } else {
                         console.error
                     }
