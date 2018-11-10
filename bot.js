@@ -193,18 +193,18 @@ bot.on('ready', () => {
                             else {
                                 console.log(`User ${j} not found!`)
                                 try {
-                                    logChannel.send({
+                                    guild.channels.get(guilds[guildID].logChannelID).send({
                                         embed: new Discord.RichEmbed()
-                                            .setDescription(`${member} was unbanned manually before the end of term.`)
+                                            .setDescription(`${user.username} was unbanned manually before the end of term.`)
                                             .setFooter(`ID: ${member.id}`)
                                             .setAuthor(`Member was unbanned.`, member.user.displayAvatarURL)
                                             .setTimestamp()
                                     })
                                 }
                                 catch (error) {
-                                    if (!logChannel) console.log('No logchannel defined for this guild!');
-                                    else console.log(error);
-                                }
+                                    // if (!logChannel) console.log('No logchannel defined for this guild!');
+                                    console.log(error);
+                                };
                                 try {
                                     delete bans[j];
                                     fs.writeFile("./data/bans.json", JSON.stringify(bans, null, 4), err => {
