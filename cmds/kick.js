@@ -22,7 +22,7 @@ module.exports.run = async (bot, message, args) => {
     if (!reason) {
         (await message.channel.send(`${target.user.username} kicked!`)).delete(10000);
         target.kick(`Moderator: ${message.author.username}`);
-        bot.utils.logChannel(bot, message.guild.id, `Member kicked!`, target.user, message.author)
+        bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member kicked!`, target.user, message.author)
     }
     if (reason) {
         // notify user
@@ -41,7 +41,7 @@ module.exports.run = async (bot, message, args) => {
                 // notify channel
                 message.channel.send(`${target.user.username} kicked!`); 
                 // notify logchannel
-                bot.utils.logChannel(bot, message.guild.id, `Member kicked!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+                bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member kicked!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
             }
         })
     }

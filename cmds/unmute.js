@@ -17,7 +17,7 @@ module.exports.run = async (bot, message, args) => {
     target.removeRole(role, `Moderator: ${message.author.username}`);
     // notify
     await message.channel.send(`${target.user.username} has been unmuted.`);
-    bot.utils.logChannel(bot, message.guild.id, `Member unmuted.`, target.user, message.author)
+    bot.utils.logChannel(bot, message.guild.id, bot.colours.green, `Member unmuted.`, target.user, message.author)
     console.log(`${target.user.username} has been unmuted.`);
 }
 

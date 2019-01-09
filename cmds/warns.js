@@ -86,7 +86,7 @@ module.exports.run = async (bot, message, args) => {
 
     if (message.channel.id === guilds[message.guild.id].adminbotChannelID) {
         if (!args[0]) { // Sends an embed with a summarized report for all warned users in a guild.
-            let embed = new Discord.RichEmbed({ title: "List of warned users", description: "_ _" })
+            let embed = new Discord.RichEmbed({ title: "List of warned users", description: "_ _" }).setColor(bot.colour)
             for (let user of users) {
                 let warns = await getwarns(user.user_id).catch(err => console.log(err))
                 let previouswarn = warns.slice(-1)[0]
@@ -103,7 +103,7 @@ module.exports.run = async (bot, message, args) => {
         else if (args[0] == 'full') { // Sends an embed with all warnings for each warned user in the guild.
             for (let user of users) {
                 let warns = await getwarns(user.user_id).catch(err => console.log(err))
-                var embed = new Discord.RichEmbed()
+                var embed = new Discord.RichEmbed().setColor(bot.colour)
                 let target
                 try { target = message.guild.members.get(user.user_id) }
                 catch (error) { console.log(error.message) }
@@ -252,7 +252,7 @@ module.exports.run = async (bot, message, args) => {
             let target = message.mentions.members.first() || message.guild.members.get(args[0]); //get mentioned member
             if (target) {
                 let warns = await getwarns(target.id).catch(err => console.log(err))
-                var embed = new Discord.RichEmbed().setAuthor(target.user.username, target.user.displayAvatarURL)
+                var embed = new Discord.RichEmbed().setAuthor(target.user.username, target.user.displayAvatarURL).setColor(bot.colour)
                 embed.setDescription(`Warning Severity Tally: ${gettally(warns)}`);
                 for (let warn of warns) {
                     let date = (new Date(warn.date)).toDateString()
@@ -263,7 +263,7 @@ module.exports.run = async (bot, message, args) => {
             else {
                 let warns = await getwarns(args[0]).catch(err => console.log(err))
                 if (warns != []) {
-                    var embed = new Discord.RichEmbed().setAuthor(args[0])
+                    var embed = new Discord.RichEmbed().setAuthor(args[0]).setColor(bot.colour)
                     embed.setDescription(`Warning Severity Tally: ${gettally(warns)}`);
                     for (let warn of warns) {
                         let date = (new Date(warn.date)).toDateString()

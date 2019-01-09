@@ -3,7 +3,7 @@ const Discord = require('discord.js');
 const guilds = require("./data/guilds.json");
 const sqlite3 = require('sqlite3').verbose();
 
-exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, other, thumbnail) => {
+exports.logChannel = (bot, guildID, colour, event, user, moderator, reason, timeString, other, thumbnail) => {
     if (!guildID) return console.log(`guildID is not defined!`);
     // identify the logger channel
     let logChannel = (bot.guilds.get(guildID)).channels.get(guilds[guildID].logChannelID)
@@ -43,6 +43,7 @@ exports.logChannel = (bot, guildID, event, user, moderator, reason, timeString, 
                 .setAuthor(event, user.displayAvatarURL)
                 .setTimestamp()
                 .setThumbnail(thumbnail)
+                .setColor(colour)
         })
     }
     catch (error) {

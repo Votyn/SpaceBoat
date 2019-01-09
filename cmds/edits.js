@@ -25,6 +25,7 @@ module.exports.run = async (bot, message, args) => {
     let embed = new Discord.RichEmbed().setAuthor('Message Edits', msg.author.displayAvatarURL)
                                        .setDescription(editarray)
                                        .setTimestamp(msg.editedAt || msg.createdAt)
+                                       .setColor(bot.colour)
     message.channel.send(embed);
 }
 

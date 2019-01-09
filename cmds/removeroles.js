@@ -28,7 +28,7 @@ module.exports.run = async (bot, message, args) => {
     // There are no arguments after the target user is identified
     if (!args[1]) {
         // notify logchannel.
-        bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author)
+        bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member's roles removed!`, target.user, message.author)
         // notify channel
         message.channel.send(`${target.user.username}'s roles have been removed.`);
         // notify console.
@@ -53,7 +53,7 @@ module.exports.run = async (bot, message, args) => {
                 // notify channel
                 message.channel.send(`${target.user.username}'s roles have been removed.`); 
                 // notify logchannel
-                bot.utils.logChannel(bot, message.guild.id, `Member's roles removed!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+                bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member's roles removed!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
             }
         })
         

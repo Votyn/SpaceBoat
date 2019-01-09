@@ -101,7 +101,7 @@ module.exports.run = async (bot, message, args) => {
         }
         else {
             message.channel.send(`${target.user.username} has been warned!`);
-            bot.utils.logChannel(bot, guildID, `Member warned!`, target.user, moderator, '', '', `\n**Severity:** ${severity}\n**Warning:** ${warningString}\n**Warn ID:** ${result}`);
+            bot.utils.logChannel(bot, guildID, bot.colours.red, `Member warned!`, target.user, moderator, '', '', `\n**Severity:** ${severity}\n**Warning:** ${warningString}\n**Warn ID:** ${result}`);
         }
     })
 }

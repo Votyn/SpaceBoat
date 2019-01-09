@@ -66,7 +66,7 @@ module.exports.run = async (bot, message, args) => {
     // There are no arguments after the target user is identified
     if (!args[1]) {
         //notify logchannel.
-        bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author)
+        bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member muted!`, target.user, message.author)
         //notify channel
         message.channel.send(`${target.user.username} has been muted.`);
         //notify console.
@@ -161,7 +161,7 @@ module.exports.run = async (bot, message, args) => {
                     message.channel.send(`${target.user.username} has been muted for ${muteLength} ${clock}${s}.`);
                     // notify logchannel
                     var timeString = `\n**Time:** ${muteLength} ${clock}${s}`
-                    bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason, timeString, `\n**Warn ID:** ${result}`);
+                    bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member muted!`, target.user, message.author, reason, timeString, `\n**Warn ID:** ${result}`);
                 }
             })
             //notify console
@@ -185,7 +185,7 @@ module.exports.run = async (bot, message, args) => {
                     // notify channel
                     message.channel.send(`${target.user.username} has been muted`);
                     // notify logchannel
-                    bot.utils.logChannel(bot, message.guild.id, `Member muted!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+                    bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member muted!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
                 }
             })
             //notify console

@@ -13,6 +13,7 @@ module.exports.run = async (bot, message, args) => {
                     embed: new Discord.RichEmbed()
                         .setTitle(`:book: ${term}`)
                         .setDescription(resp.definition[0])
+                        .setColor(bot.colour)
                 });
             })
             .catch (error => {

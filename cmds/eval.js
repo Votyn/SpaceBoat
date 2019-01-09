@@ -24,6 +24,7 @@ module.exports.run = async (bot, message, args) => {
                 .addField('Input', `\`\`\`javascript\n${input.substr(0, 256)}\n\`\`\``)
                 .addField('Output', `\`\`\`javascript\n${output.substr(0, 768)}\n\`\`\``)
                 .setFooter(`Requested by ${message.author.tag}`)
+                .setColor(bot.colour)
         }).then(m => m.delete(15000));
     } catch (err) {
         message.channel.send(`:x: An error has occurred: \`\`\`\n${err.toString().substr(0, 1500)}\n\`\`\``);

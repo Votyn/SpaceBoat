@@ -29,7 +29,7 @@ module.exports.run = async (bot, message, args) => {
             embed: new Discord.RichEmbed()
                 .setTitle(`[${id}] ${info.title}`)
                 .setImage(info.img)
-                .setColor([150, 168, 199])
+                .setColor(bot.colour)
                 .setURL(`http://xkcd.com/${id}`)
                 .setFooter(info.alt)
         })

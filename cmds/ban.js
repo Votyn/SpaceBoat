@@ -30,7 +30,7 @@ module.exports.run = async (bot, message, args) => {
     // If there are no arguments after the target user is identified
     if (!args[1]) {
         //notify logchannel.
-        bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author)
+        bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member banned!`, target.user, message.author)
         //notify channel
         message.channel.send(`${target.user.username} has been banned!`).then(m => m.delete(20000));
         //notify console.
@@ -109,7 +109,7 @@ module.exports.run = async (bot, message, args) => {
                     message.channel.send(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`);
                     // notify logchannel
                     var timeString = `\n**Time:** ${banPeriod} ${clock}${s}`
-                    bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason, timeString, `\n**Warn ID:** ${result}`);
+                    bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member banned!`, target.user, message.author, reason, timeString, `\n**Warn ID:** ${result}`);
                 }
             })
             //notify console
@@ -132,7 +132,7 @@ module.exports.run = async (bot, message, args) => {
                     // notify channel
                     message.channel.send(`${target.user.username} has been banned`);
                     // notify logchannel
-                    bot.utils.logChannel(bot, message.guild.id, `Member banned!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
+                    bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member banned!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
                 }
             })
             //notify console

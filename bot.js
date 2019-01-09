@@ -48,6 +48,18 @@ bot.utils = global.utils = require('./utils');
 
 bot.commands = new Discord.Collection();
 
+bot.colour = '678ade'
+bot.colours = {
+    'green': '43b581',
+    'red': 'f04947',
+    'orange': 'ffac33',
+    'purple': 'aa8ed6',
+    'blue': '3b88c3',
+    'darkblue': '226699',
+    'black': '292f33',
+    'white': 'ffffff'
+}
+
 fs.readdir("./cmds/", (err, files) => {
     if (err) console.error(err);
 
@@ -68,7 +80,7 @@ fs.readdir("./cmds/", (err, files) => {
 
 bot.on('ready', () => {
     console.log(`${bot.user.username} switched on.`);
-
+    
     let botGuildsIDs = Array.from(bot.guilds.keys());
     for (let i in botGuildsIDs) {
         if (!guilds.hasOwnProperty(botGuildsIDs[i])) {
@@ -140,6 +152,7 @@ bot.on('ready', () => {
                                 .setFooter(`ID: ${member.id}`)
                                 .setAuthor(`Member was unmuted.`, member.user.displayAvatarURL)
                                 .setTimestamp()
+                                .setColor(bot.colours.green)
                         })
                     }
                     catch (error) {
@@ -156,7 +169,7 @@ bot.on('ready', () => {
                     console.log(`${member.user.username} has been unmuted.`);
                     // notify logchannel
                     let logChannel = guild.channels.get(guilds[guildID].logChannelID)
-                    bot.utils.logChannel(bot, guildID, `Member unmuted.`, member.user, bot.user, `Automatic.`)
+                    bot.utils.logChannel(bot, guildID, bot.colours.green, `Member unmuted.`, member.user, bot.user, `Automatic.`)
                     //remove the entry
                     mutes[i] = null;
                     delete mutes[i];
@@ -188,7 +201,7 @@ bot.on('ready', () => {
                                 catch (error) { console.log(error) }
                                 let logChannel = guild.channels.get(guilds[guildID].logChannelID)
                                 console.log(`${user.username} has been unbanned.`);
-                                bot.utils.logChannel(bot, guildID, `Member unbanned.`, user, bot.user, `Automatically unbanned - Temporary ban term ended.`)
+                                bot.utils.logChannel(bot, guildID, bot.colours.green, `Member unbanned.`, user, bot.user, `Automatically unbanned - Temporary ban term ended.`)
                             }
                             else {
                                 console.log(`User ${j} not found!`)
@@ -199,6 +212,7 @@ bot.on('ready', () => {
                                             .setFooter(`ID: ${member.id}`)
                                             .setAuthor(`Member was unbanned.`, member.user.displayAvatarURL)
                                             .setTimestamp()
+                                            .setColor(bot.colours.green)
                                     })
                                 }
                                 catch (error) {
@@ -231,8 +245,8 @@ bot.db = global.db = new sqlite3.Database('./data/data.db', sqlite3.OPEN_CREATE 
 
 bot.on('message', message => {
     if (message.author.bot) return;
-    if (message.mentions.everyone) {
-        bot.utils.logChannel(bot, message.guild.id, 'PINGED.', message.author, '', `sent message: "${message}"`, '')
+    if (message.mentions.everyone || message.mentions.roles.first()) {
+        bot.utils.logChannel(bot, message.guild.id, bot.colours.purple, 'Mass ping!', message.author, '', `sent message: "${message}"`, '')
     }
     if (!(message.channel.type === "text")) return;
 
@@ -256,6 +270,7 @@ bot.on('guildMemberAdd', member => {
                 .setFooter(`ID: ${member.id}`)
                 .setAuthor(`Member joined!`, member.user.displayAvatarURL)
                 .setTimestamp()
+                .setColor(bot.colours.blue)
         });
     }
     catch (error) {
@@ -277,6 +292,7 @@ bot.on('guildMemberRemove', member => {
                 .setFooter(`ID: ${member.id}`)
                 .setAuthor(`Member left.`, member.user.displayAvatarURL)
                 .setTimestamp()
+                .setColor(bot.colours.orange)
         })
     }
     catch (error) {
@@ -313,6 +329,7 @@ bot.on('messageDelete', message => {
                 .setColor('red')
                 .setTimestamp(new Date())
                 .setFooter(`Author: @${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
+                .setColor(bot.colours.darkblue)
 
     if (message.attachments.size > 0) {
         const attachment = message.attachments.first();
@@ -342,7 +359,7 @@ bot.on('messageDeleteBulk', messages => {
                     .setTitle('Message Deleted! (in bulk)')
                     .setDescription(`\`\`\`\n${(message.cleanContent).substr(0, 1950)}\n\`\`\``)
                     .addField('Channel', `${message.channel}`)
-                    .setColor('red')
+                    .setColor(bot.colours.purple)
                     .setTimestamp(new Date())
                     .setFooter(`Author: @${message.author.username}#${message.author.discriminator}`, message.author.avatarURL)
     
