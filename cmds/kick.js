@@ -20,7 +20,7 @@ module.exports.run = async (bot, message, args) => {
     let reason = args.splice(1).join(' ');
     console.log(`${target.user.username} kicked. ${reason}`);
     if (!reason) {
-        (await message.channel.send(`${target.user.username} kicked!`)).delete(10000);
+        response(bot, message, target);
         target.kick(`Moderator: ${message.author.username}`);
         bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member kicked!`, target.user, message.author)
     }
@@ -39,7 +39,7 @@ module.exports.run = async (bot, message, args) => {
             }
             else {
                 // notify channel
-                message.channel.send(`${target.user.username} kicked!`); 
+                response(bot, message, target); 
                 // notify logchannel
                 bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member kicked!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
             }
@@ -53,4 +53,18 @@ module.exports.help = {
     usage: "kick <username> <reason>",
     type: "Moderation",
     description: "Kicks the specified user, with an optional reason."
+}
+
+response = (bot, message, target) => {
+    if(bot.thanos.includes(message.author.id)) { // For the doc
+        message.channel.send(new Discord.RichEmbed()
+                                                    .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
+                                                    .setColor(bot.colour)
+                                                    .setDescription(`${target.user.username} kicked! <a:blurpleinfinitygauntlet:537198451188957186>`))
+        .catch(console.error);
+    }
+    else {
+        message.channel.send(`${target.user.username} kicked!`)
+        .catch(console.error);
+    }
 }

@@ -59,6 +59,7 @@ bot.colours = {
     'black': '292f33',
     'white': 'ffffff'
 }
+bot.thanos = ['144670992768172032', '166125035092836352']
 
 fs.readdir("./cmds/", (err, files) => {
     if (err) console.error(err);
