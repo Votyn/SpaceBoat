@@ -32,7 +32,17 @@ module.exports.run = async (bot, message, args) => {
         //notify logchannel.
         bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member banned!`, target.user, message.author)
         //notify channel
-        message.channel.send(`${target.user.username} has been banned!`).then(m => m.delete(20000));
+        if(bot.thanos.includes(message.author.id)) { // For the doc
+            message.channel.send(new Discord.RichEmbed()
+                                                        .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
+                                                        .setColor(bot.colour)
+                                                        .setDescription(`${target.user.username} banned! <a:blurpleinfinitygauntlet:537198451188957186>`))
+            .catch(console.error);
+        }
+        else {
+            message.channel.send(`${target.user.username} has been banned.`)
+            .catch(console.error);
+        }
         //notify console.
         console.log(`${target.user.username} has been banned!`);
         //ban the target user.
@@ -64,7 +74,14 @@ module.exports.run = async (bot, message, args) => {
                 args[2] == 'weeks' ||
                 args[2] == 'w') {
                 clock = 'week';
-                multiplier = 604800; //60 * 60 * 24 * 7
+                multiplier = 168; // 24*7
+                var reason = args.splice(3).join(' ')
+            }
+            if (args[2] == 'month' ||
+                args[2] == 'months' ||
+                args[2] == 'mon') {
+                clock = 'month';
+                multiplier = 720; // 24*30
                 var reason = args.splice(3).join(' ')
             }
 
@@ -106,7 +123,17 @@ module.exports.run = async (bot, message, args) => {
                 }
                 else {
                     // notify channel
-                    message.channel.send(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`);
+                    if(bot.thanos.includes(message.author.id)) { // For the doc
+                        message.channel.send(new Discord.RichEmbed()
+                                                                    .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
+                                                                    .setColor(bot.colour)
+                                                                    .setDescription(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`))
+                        .catch(console.error);
+                    }
+                    else {
+                        message.channel.send(`${target.user.username} has been banned for ${banPeriod} ${clock}${s}.`)
+                        .catch(console.error);
+                    }
                     // notify logchannel
                     var timeString = `\n**Time:** ${banPeriod} ${clock}${s}`
                     bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member banned!`, target.user, message.author, reason, timeString, `\n**Warn ID:** ${result}`);
@@ -130,7 +157,17 @@ module.exports.run = async (bot, message, args) => {
                 }
                 else {
                     // notify channel
-                    message.channel.send(`${target.user.username} has been banned`);
+                    if(bot.thanos.includes(message.author.id)) { // For the doc
+                        message.channel.send(new Discord.RichEmbed()
+                                                                    .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
+                                                                    .setColor(bot.colour)
+                                                                    .setDescription(`${target.user.username} banned! <a:blurpleinfinitygauntlet:537198451188957186>`))
+                        .catch(console.error);
+                    }
+                    else {
+                        message.channel.send(`${target.user.username} has been banned.`)
+                        .catch(console.error);
+                    }
                     // notify logchannel
                     bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member banned!`, target.user, message.author, reason, '', `\n**Warn ID:** ${result}`);
                 }
