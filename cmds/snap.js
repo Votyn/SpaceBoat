@@ -8,11 +8,13 @@ module.exports.run = async (bot, message, args) => {
                                                     .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
                                                     .setColor(bot.colour)
         )
-        .catch(console.error);
+        .then(message.delete())
+        .catch(console.error)
+        
     }
 }
 
 module.exports.help = {
-    name: "test",
+    name: "snap",
     type: "Private"
 }
