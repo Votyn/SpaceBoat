@@ -30,6 +30,17 @@ catch (error) {
     var bans = require("./data/bans.json");
     console.log(`Creating new bans.json file.`);
 }
+try {
+    var suspendrolename = require("./data/suspendrolename.json"); // I know this is the worst way to do this, but I'm gunna be rewriting soon-ish anyway so hush
+}
+catch (error) {
+    console.log(`${error.message}`);
+    fs.writeFileSync("./data/suspendrolename.json", JSON.stringify({}, null, 4), err => {
+        if (err) console.error('Error creating suspendrolename.json file:', err);
+    });
+    var suspendrolename = require("./data/suspendrolename.json");
+    console.log(`Creating new suspendrolename.json file.`);
+}
 
 try {
     var guilds = require("./data/guilds.json");
