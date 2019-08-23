@@ -15,7 +15,12 @@ module.exports.run = async (bot, message, args) => {
             console.log(member.user.username)
                 if (member.roles.size > 1) {
                     if(member.roles.find(r => r.id === args[1])) return;
-                    else member.addRole(role, "Added by ray for everyone with a role.");
+                    else try {
+                        member.addRole(role, "Added by ray for everyone with a role.");
+                    }
+                    catch(error) {
+                        console.log(error.message);
+                    }
                 }
             }
         )
