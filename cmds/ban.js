@@ -33,10 +33,11 @@ module.exports.run = async (bot, message, args) => {
         bot.utils.logChannel(bot, message.guild.id, bot.colours.red, `Member banned!`, target.user, message.author)
         //notify channel
         if(bot.thanos.includes(message.author.id)) { // For the doc
-            message.channel.send(new Discord.RichEmbed()
+            await(message.channel.send(new Discord.RichEmbed()
                                                         .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
                                                         .setColor(bot.colour)
                                                         .setDescription(`${target.user.username} banned! <a:blurpleinfinitygauntlet:537198451188957186>`))
+            ).delete(30000)
             .catch(console.error);
         }
         else {

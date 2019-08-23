@@ -9,10 +9,11 @@ module.exports.run = async (bot, message, args) => {
         .then(deleted => {
             // notify success
             if(bot.thanos.includes(message.author.id)) {
-                message.channel.send(new Discord.RichEmbed()
+                await(message.channel.send(new Discord.RichEmbed()
                                                             .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
                                                             .setColor(bot.colour)
                                                             .setDescription(`Purged \`${deleted.size-1}\` message${(deleted.size-1) === 1 ? '' : 's'}.`))
+                ).delete(30000)
                 .catch(console.error);
             } // For the doc
             else message.channel.send(`:white_check_mark: Purged \`${deleted.size-1}\` message${(deleted.size-1) === 1 ? '' : 's'}.`).then(msg => msg.delete(2000));

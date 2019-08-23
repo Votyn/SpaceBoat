@@ -4,10 +4,10 @@ const Discord = require('discord.js')
 const config = require("../data/config.json")
 module.exports.run = async (bot, message, args) => {
     if(bot.thanos.includes(message.author.id)) {
-        message.channel.send(new Discord.RichEmbed()
+        (await message.channel.send(new Discord.RichEmbed()
                                                     .setImage('https://media1.tenor.com/images/e36fb32cfc3b63075adf0f1843fdc43a/tenor.gif?itemid=12502580')
                                                     .setColor(bot.colour)
-        )
+        )).delete(30000)
         .then(message.delete())
         .catch(console.error)
         
