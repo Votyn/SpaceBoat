@@ -8,6 +8,7 @@ try {
 catch (error) {
     console.log(`${message.error}\nPlease edit the config-example.json file, and rename it as config.json!`)
 }
+
 try {
     var mutes = require("./data/mutes.json");
 }
@@ -51,6 +52,17 @@ catch (error) {
         if (err) console.error('Error saving guilds.json file:', err);
     });
     var guilds = require("./data/guilds.json");
+}
+
+try {
+    var rolereact = require("./data/rolereact.json");
+}
+catch (error) {
+    console.log(`${error.message}\nCreating new rolereact.json file.`);
+    fs.writeFileSync("./data/rolereact.json", JSON.stringify({}, null, 4), err => {
+        if (err) console.error('Error saving rolereact.json file:', err);
+    });
+    var rolereact = require("./data/rolereact.json");
 }
 
 const bot = new Discord.Client();
@@ -270,6 +282,30 @@ bot.on('message', message => {
 
     let cmd = bot.commands.get(command.slice(config.prefix.length));
     if (cmd) cmd.run(bot, message, args);
+});
+
+bot.on('messageReactionAdd', (messageReaction, user) => {
+    if(rolereact[messageReaction.message.id]) {
+        let message = messageReaction.message;
+        let emoji = rolereact[message.id].emoji;
+        if (emoji[0] == '<') {
+            let emojiID = emoji.split(':')[2].split('>')[0]; //custom emoji ID.
+            //console.log(emojiID);
+            emoji = bot.emojis.get(emojiID)
+        }
+        let role = message.guild.roles.get(rolereact[message.id].role);
+        if(emoji == messageReaction.emoji) {
+            messageReaction.users.forEach(user => {
+                if(user === bot.user) return;
+                try {
+                    message.guild.member(user).addRole(role, "Automated Reaction Role in #" + message.channel.name);
+                    messageReaction.remove(user)
+                }
+                catch (err) {console.log(err)}
+                console.log()
+            });
+        }
+    }
 });
 
 bot.on('guildMemberAdd', member => {
