@@ -299,10 +299,17 @@ bot.on('messageReactionAdd', (messageReaction, user) => {
                 if(user === bot.user) return;
                 try {
                     message.guild.member(user).addRole(role, "Automated Reaction Role in #" + message.channel.name);
-                    messageReaction.remove(user)
+                    messageReaction.remove(user);
                 }
-                catch (err) {console.log(err)}
-                console.log()
+                catch (err) {
+                    if (err.name == "TypeError: Cannot read property 'addRole' of null") {
+                        try {
+                            console.log("Couldn't find " + user.username + " in the members list, trying alternative method.")
+                            message.guild.members.get(user.id).addRole(role, "Automated Reaction Role in #" + message.channel.name);
+                            messageReaction.remove(user);
+                        } catch (err) {console.log(err)}
+                    } else console.log(err)}
+                console.log("Role added to " + user.username + "#" + user.discriminator + " from message in #" + message.channel.name);
             });
         }
     }
