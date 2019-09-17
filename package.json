@@ -13,6 +13,7 @@
     "url": "https://github.com/Votyn/SpaceBoat.git"
   },
   "dependencies": {
+    "dateformat": "^3.0.3",
     "discord.js": "^11.3.0",
     "sqlite3": "^4.0.2",
     "webdict": "^0.2.2"
