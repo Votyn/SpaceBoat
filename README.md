@@ -1,5 +1,5 @@
 # Space Boat
-Discord.js Multifunction bot primarily made for the [Space Engine Discord Server](https://discordapp.com/spaceengine)
+Discord.js Multifunction bot primarily made for the [Space Engine Discord Server](https://discord.gg/spaceengine)
 ## Planned features
  - ~~Moderation features such as mute, kick, ban, "roleremove", and some other role addition commands.~~
  - ~~Logging functionality to log user actions such as leaving and entering the server, information of which is stored in a logging channel.~~
